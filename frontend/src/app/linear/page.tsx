@@ -53,6 +53,8 @@ function buildLatexConstraint(c: Constraint, names: string[]): string {
   return `${terms} ${op} ${c.rhs}`;
 }
 
+import { formatNumber } from "@/utils/format";
+
 export default function LinearPage() {
   const [activeTab, setActiveTab] = useState<Tab>("simplex");
   const [objType, setObjType] = useState<"MAX" | "MIN">("MAX");
@@ -469,11 +471,11 @@ export default function LinearPage() {
                   <div className="alert-success py-1.5 px-3 text-sm">
                     Z* ={" "}
                     <strong className="text-teal-300">
-                      {graphResult.optimal_value?.toFixed(4)}
+                      {formatNumber(graphResult.optimal_value)}
                     </strong>
-                    {" en "}(
-                    {graphResult.optimal_point?.x.toFixed(3)},{" "}
-                    {graphResult.optimal_point?.y.toFixed(3)})
+                    {" en "}
+                    ({formatNumber(graphResult.optimal_point?.x)},{" "}
+                    {formatNumber(graphResult.optimal_point?.y)})
                   </div>
                 </div>
                 <Graph2D result={graphResult} objCoeffs={objCoeffs} />

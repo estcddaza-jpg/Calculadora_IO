@@ -35,6 +35,27 @@ export interface SimplexResponse {
   sensitivity: Record<string, unknown>;
 }
 
+export interface RevisedSimplexTableau {
+  iteration: number;
+  basic_variables: string[];
+  variable_names: string[];
+  b_inv: number[][];
+  rhs: number[];
+  pi: number[];
+  reduced_costs: number[];
+  z_value: number;
+  entering_variable: string | null;
+  leaving_variable: string | null;
+  is_optimal: boolean;
+}
+
+export interface RevisedSimplexResponse {
+  status: string;
+  optimal_value: number;
+  variables: Record<string, number>;
+  tableaux: RevisedSimplexTableau[];
+}
+
 export interface GraphicalVertex {
   x: number;
   y: number;
@@ -96,6 +117,13 @@ export const solveLinearSimplex = async (
   input: LinearProgramInput
 ): Promise<SimplexResponse> => {
   const { data } = await api.post<SimplexResponse>("/linear/simplex", input);
+  return data;
+};
+
+export const solveRevisedSimplex = async (
+  input: LinearProgramInput
+): Promise<RevisedSimplexResponse> => {
+  const { data } = await api.post<RevisedSimplexResponse>("/linear/revised-simplex", input);
   return data;
 };
 

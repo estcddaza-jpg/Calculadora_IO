@@ -2,13 +2,16 @@
 import { useEffect, useRef } from "react";
 import {
   Chart as ChartJS,
+  CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  Filler,
+  Title,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
+import { formatNumber } from "@/utils/format";
 import { Scatter } from "react-chartjs-2";
 import type { GraphicalResponse } from "@/services/api";
 
@@ -193,10 +196,10 @@ export default function Graph2D({ result, objCoeffs }: Graph2DProps) {
                 }`}
               >
                 <td className="py-2 text-slate-300">V{i + 1}</td>
-                <td className="py-2 text-center">{v.x.toFixed(4)}</td>
-                <td className="py-2 text-center">{v.y.toFixed(4)}</td>
+                <td className="py-2 text-center">{formatNumber(v.x)}</td>
+                <td className="py-2 text-center">{formatNumber(v.y)}</td>
                 <td className="py-2 text-center text-blue-300 font-semibold">
-                  {v.z_value.toFixed(4)}
+                  {formatNumber(v.z_value)}
                 </td>
                 <td className="py-2 text-center">
                   {v.is_optimal ? (

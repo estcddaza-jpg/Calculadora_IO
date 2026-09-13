@@ -6,12 +6,13 @@ import CalcKeypad from "./CalcKeypad";
 import ResultsPanel, { type ResultData } from "./ResultsPanel";
 import {
   solveLinearSimplex,
+  solveRevisedSimplex,
   solveGraphical,
   generateDual,
   getErrorMessage,
 } from "@/services/api";
 
-type SolveMethod = "simplex" | "graphical" | "dual";
+type SolveMethod = "simplex" | "revised" | "graphical" | "dual";
 
 const MODE_LABELS: Record<string, string> = {
   linear:   "📐 Programación Lineal",
@@ -79,6 +80,9 @@ export default function CalculatorLayout() {
       if (method === "simplex") {
         const data = await solveLinearSimplex(model);
         setResult({ kind: "simplex", data });
+      } else if (method === "revised") {
+        const data = await solveRevisedSimplex(model);
+        setResult({ kind: "revised", data });
       } else if (method === "graphical") {
         const data = await solveGraphical(model);
         setResult({ kind: "graphical", data });
@@ -131,13 +135,13 @@ export default function CalculatorLayout() {
           {/* Method selector */}
           {mode === "linear" && (
             <div className="calc-toggle">
-              {(["simplex", "graphical", "dual"] as SolveMethod[]).map((m) => (
+              {(["simplex", "revised", "graphical", "dual"] as SolveMethod[]).map((m) => (
                 <button
                   key={m}
                   className={`calc-toggle__btn calc-toggle__btn--sm ${method === m ? "calc-toggle__btn--active" : ""}`}
                   onClick={() => setMethod(m)}
                 >
-                  {m === "simplex" ? "Simplex" : m === "graphical" ? "Gráfico" : "Dual"}
+                  {m === "simplex" ? "Estándar" : m === "revised" ? "Revisado" : m === "graphical" ? "Gráfico" : "Dual"}
                 </button>
               ))}
             </div>

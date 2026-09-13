@@ -9,20 +9,10 @@ interface StepByStepTableProps {
   variables: Record<string, number>;
 }
 
-/** Convierte un número a fracción LaTeX legible */
-function toFraction(value: number): string {
+/** Formatea un número a máximo 4 decimales eliminando ceros inútiles */
+function formatNumber(value: number): string {
   if (Number.isInteger(value)) return String(value);
-  const abs = Math.abs(value);
-  const sign = value < 0 ? "-" : "";
-  // Intentar fracción simple con denominador hasta 64
-  for (let d = 2; d <= 64; d++) {
-    const n = Math.round(abs * d);
-    if (Math.abs(n / d - abs) < 1e-7) {
-      if (d === 1) return `${sign}${n}`;
-      return `${sign}\\frac{${n}}{${d}}`;
-    }
-  }
-  return value.toFixed(4);
+  return String(Number(parseFloat(String(value)).toFixed(4)));
 }
 
 export default function StepByStepTable({
@@ -96,12 +86,11 @@ export default function StepByStepTable({
         <table className="simplex-table">
           <thead>
             <tr>
-              {/* Fila Cj */}
-              <th className="w-12 border-r border-white/8">
+              <th className="w-12 border-r border-white/8"></th>
+              <th className="border-r border-white/8"></th>
+              <th className="border-r border-white/8">
                 <KaTeXDisplay latex="C_j" />
               </th>
-              <th className="border-r border-white/8">VB</th>
-              <th className="border-r border-white/8">b</th>
               {varNames.map((name, j) => (
                 <th
                   key={j}
@@ -112,16 +101,16 @@ export default function StepByStepTable({
                   }
                 >
                   <KaTeXDisplay
-                    latex={`${toFraction(cj[j] ?? 0)}`}
+                    latex={`${formatNumber(cj[j] ?? 0)}`}
                   />
                 </th>
               ))}
             </tr>
             <tr style={{ borderBottom: "2px solid rgba(79,142,247,0.3)" }}>
-              <th></th>
               <th className="border-r border-white/8">
                 <KaTeXDisplay latex="C_B" />
               </th>
+              <th className="border-r border-white/8">VB</th>
               <th className="border-r border-white/8 text-teal-400">
                 <KaTeXDisplay latex="b" />
               </th>
@@ -154,7 +143,7 @@ export default function StepByStepTable({
               >
                 <td className="border-r border-white/8 text-teal-400 font-mono text-xs">
                   <KaTeXDisplay
-                    latex={toFraction(
+                    latex={formatNumber(
                       cj[varNames.indexOf(bv)] ?? 0
                     )}
                   />
@@ -167,7 +156,7 @@ export default function StepByStepTable({
                 </td>
                 <td className="border-r border-white/8 text-blue-300 font-semibold">
                   <KaTeXDisplay
-                    latex={toFraction(
+                    latex={formatNumber(
                       tableau.tableau[rowIdx]?.[varNames.length] ?? 0
                     )}
                   />
@@ -182,7 +171,7 @@ export default function StepByStepTable({
                       key={colIdx}
                       className={isPivot ? "pivot-cell" : ""}
                     >
-                      <KaTeXDisplay latex={toFraction(val)} />
+                      <KaTeXDisplay latex={formatNumber(val)} />
                     </td>
                   );
                 })}
@@ -196,11 +185,11 @@ export default function StepByStepTable({
                 <KaTeXDisplay latex="Z_j" />
               </td>
               <td className="border-r border-white/8 text-blue-400 font-bold">
-                <KaTeXDisplay latex={toFraction(tableau.z_value)} />
+                <KaTeXDisplay latex={formatNumber(tableau.z_value)} />
               </td>
               {zj.map((z, j) => (
                 <td key={j} className="text-slate-400">
-                  <KaTeXDisplay latex={toFraction(z)} />
+                  <KaTeXDisplay latex={formatNumber(z)} />
                 </td>
               ))}
             </tr>
@@ -221,7 +210,7 @@ export default function StepByStepTable({
                       : "text-slate-500"
                   }
                 >
-                  <KaTeXDisplay latex={toFraction(v)} />
+                  <KaTeXDisplay latex={formatNumber(v)} />
                 </td>
               ))}
             </tr>
@@ -240,14 +229,14 @@ export default function StepByStepTable({
               <div>
                 <span className="text-slate-400">Z* = </span>
                 <KaTeXDisplay
-                  latex={toFraction(optimalValue)}
+                  latex={formatNumber(optimalValue)}
                   className="text-teal-300 font-bold text-base"
                 />
               </div>
               {Object.entries(variables).map(([name, val]) => (
                 <div key={name}>
                   <KaTeXDisplay
-                    latex={`${name.replace(/(\d+)/, "_{$1}")} = ${toFraction(val)}`}
+                    latex={`${name.replace(/(\d+)/, "_{$1}")} = ${formatNumber(val)}`}
                     className="text-teal-300"
                   />
                 </div>

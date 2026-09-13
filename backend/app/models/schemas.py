@@ -43,6 +43,29 @@ class SimplexResponse(BaseModel):
     error_message: Optional[str] = None
 
 
+class RevisedSimplexTableau(BaseModel):
+    iteration: int
+    basic_variables: List[str]
+    variable_names: List[str]
+    b_inv: List[List[float]]
+    rhs: List[float]
+    pi: List[float]
+    reduced_costs: List[float]
+    entering_variable: Optional[str] = None
+    leaving_variable: Optional[str] = None
+    is_optimal: bool = False
+    z_value: float
+
+
+class RevisedSimplexResponse(BaseModel):
+    status: str
+    optimal_value: Optional[float] = None
+    variables: Optional[Dict[str, float]] = None
+    tableaux: Optional[List[RevisedSimplexTableau]] = None
+    error_message: Optional[str] = None
+
+
+
 class GraphicalVertex(BaseModel):
     x: float
     y: float
