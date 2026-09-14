@@ -45,10 +45,11 @@ const LINEAR_KEYS_NORMAL: KeyDef[] = [
   { label: "2",    token: "2",            variant: "num" },
   { label: "3",    token: "3",            variant: "num" },
   { label: "/",    token: "/",            variant: "op" },
-  // Row 7 — 0 (wide), dot, RESOLVER
-  { label: "0",    token: "0",            variant: "num",  colSpan: 2 },
+  // Row 7 — 0, dot, GRAPH, RESOLVER
+  { label: "0",    token: "0",            variant: "num" },
   { label: ".",    token: ".",            variant: "num" },
-  { label: "RESOLVER ▶", token: "__SOLVE__", variant: "solve", colSpan: 1 },
+  { label: "📊 GRÁFICA", token: "__GRAPH__", variant: "action" },
+  { label: "RESOLVER ▶", token: "__SOLVE__", variant: "solve" },
 ];
 
 const SHIFT_EXTRA_KEYS: KeyDef[] = [
@@ -67,7 +68,7 @@ const VARIANT_CLASS: Record<string, string> = {
 };
 
 interface CalcKeypadProps {
-  onSolve: () => void;
+  onSolve: (override?: "graphical") => void;
 }
 
 export default function CalcKeypad({ onSolve }: CalcKeypadProps) {
@@ -87,6 +88,7 @@ export default function CalcKeypad({ onSolve }: CalcKeypadProps) {
       case "__ADDROW__":  addRow();                 break;
       case "__DELROW__":  removeRow(activeRowIdx);  break;
       case "__SOLVE__":   onSolve();                break;
+      case "__GRAPH__":   onSolve("graphical");     break;
       default:            pushToken(k.token);       break;
     }
   }

@@ -59,6 +59,7 @@ export interface RevisedSimplexResponse {
 export interface GraphicalVertex {
   x: number;
   y: number;
+  z?: number;
   is_optimal: boolean;
   z_value: number;
 }
@@ -66,7 +67,8 @@ export interface GraphicalVertex {
 export interface GraphicalResponse {
   status: string;
   vertices: GraphicalVertex[];
-  optimal_point: GraphicalVertex;
+  faces?: number[][];
+  optimal_point?: GraphicalVertex;
   optimal_value: number;
   constraint_lines: Array<{
     id: string;
@@ -76,6 +78,7 @@ export interface GraphicalResponse {
     operator: string;
     rhs: number;
   }>;
+  error_message?: string;
 }
 
 export interface DualResponse {

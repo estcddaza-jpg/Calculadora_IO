@@ -24,14 +24,28 @@ export default function NetworksPage() {
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
       <div className="max-w-7xl mx-auto px-6 py-10">
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl">🕸️</span>
-            <h1 className="text-3xl font-bold text-white">Redes y Proyectos</h1>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-3xl">🕸️</span>
+              <h1 className="text-3xl font-bold text-white">Redes y Proyectos</h1>
+            </div>
+            <p className="text-slate-400">
+              Transporte, Asignación, CPM/PERT y Teoría de Colas con visualización completa.
+            </p>
           </div>
-          <p className="text-slate-400">
-            Transporte, Asignación, CPM/PERT y Teoría de Colas con visualización completa.
-          </p>
+          <select
+            className="bg-slate-800/50 border border-white/10 text-white text-sm rounded-lg px-4 py-2 hover:bg-slate-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value="networks"
+            onChange={(e) => {
+              if (e.target.value === "linear") window.location.href = "/";
+            }}
+          >
+            <option value="linear">📐 Programación Lineal</option>
+            <option value="networks">🕸️ Redes y Proyectos</option>
+            <option value="queues">🕒 Teoría de Colas</option>
+            <option value="advanced">📈 Modelos Avanzados</option>
+          </select>
         </div>
 
         <div className="flex gap-1 p-1 bg-white/4 rounded-xl w-fit mb-8 border border-white/8">

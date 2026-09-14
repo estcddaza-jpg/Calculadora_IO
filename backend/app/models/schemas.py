@@ -69,6 +69,7 @@ class RevisedSimplexResponse(BaseModel):
 class GraphicalVertex(BaseModel):
     x: float
     y: float
+    z: Optional[float] = None
     is_optimal: bool = False
     z_value: Optional[float] = None
 
@@ -76,6 +77,7 @@ class GraphicalVertex(BaseModel):
 class GraphicalResponse(BaseModel):
     status: str
     vertices: List[GraphicalVertex]
+    faces: Optional[List[List[int]]] = None
     optimal_point: Optional[GraphicalVertex] = None
     optimal_value: Optional[float] = None
     constraint_lines: List[Dict[str, Any]]

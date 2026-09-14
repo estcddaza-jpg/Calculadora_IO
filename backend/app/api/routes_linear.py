@@ -58,14 +58,14 @@ def solve_revised_simplex(request: LinearProgramRequest):
 @router.post("/graphical", response_model=GraphicalResponse, summary="Resolver por Método Gráfico")
 def graphical(request: LinearProgramRequest):
     """
-    Resuelve un PL de 2 variables usando el Método Gráfico.
+    Resuelve un PL de 2 o 3 variables usando el Método Gráfico.
     Devuelve vértices de la región factible y punto óptimo.
     """
     try:
-        if len(request.objective_function) != 2:
+        if len(request.objective_function) not in [2, 3]:
             raise HTTPException(
                 status_code=400,
-                detail="El método gráfico solo soporta exactamente 2 variables de decisión.",
+                detail="El método gráfico solo soporta 2 o 3 variables de decisión.",
             )
         constraints = [c.model_dump() for c in request.constraints]
         result = solve_graphical_method(

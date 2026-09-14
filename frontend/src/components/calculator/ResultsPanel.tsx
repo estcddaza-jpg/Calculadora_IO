@@ -1,8 +1,10 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import katex from "katex";
 import "katex/dist/katex.min.css";
 import type { SimplexResponse, GraphicalResponse, DualResponse, RevisedSimplexResponse } from "@/services/api";
+import Graph2D from "../visualizations/Graph2D";
+import Graph3D from "../visualizations/Graph3D";
 
 import { formatNumber } from "@/utils/format";
 
@@ -38,7 +40,7 @@ function SimplexResults({ data }: { data: SimplexResponse }) {
       </div>
 
       <div className="results-vars">
-        {Object.entries(data.variables).map(([k, v]) => (
+        {Object.entries(data.variables || {}).map(([k, v]) => (
           <div key={k} className="results-var-chip">
             <KTex src={k.replace(/x(\d+)/, "x_{$1}").replace(/y(\d+)/, "y_{$1}")} />
             <span className="results-var-eq">=</span>
@@ -130,25 +132,44 @@ function DualResults({ data }: { data: DualResponse }) {
 //  Graphical Results (vertices list)
 // ─────────────────────────────────────────────────────────────────────────────
 function GraphicalResults({ data }: { data: GraphicalResponse }) {
+  const isInherently3D = data.vertices.length > 0 && data.vertices[0].z !== undefined;
+  const [view3D, setView3D] = useState(isInherently3D);
+  
+  // Si es un problema 2D pero queremos verlo en 3D, le inventamos z=0
+  const renderData = (view3D && !isInherently3D) 
+    ? { ...data, vertices: data.vertices.map(v => ({ ...v, z: 0 })) }
+    : data;
+
   return (
     <div className="results-block">
-      <div className="results-header">
-        <span className={`results-badge ${data.status === "optimal" ? "badge-optimal" : "badge-error"}`}>
-          {data.status.toUpperCase()}
-        </span>
-        <span className="results-zval">
-          Z* = <strong>{formatNumber(data.optimal_value)}</strong>
-        </span>
+      <div className="results-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+        <div>
+          <span className={`results-badge ${data.status === "optimal" ? "badge-optimal" : "badge-error"}`}>
+            {data.status.toUpperCase()}
+          </span>
+          <span className="results-zval" style={{ marginLeft: '10px' }}>
+            Z* = <strong>{formatNumber(data.optimal_value)}</strong>
+          </span>
+        </div>
+        
+        <div className="calc-toggle">
+          <button 
+            className={`calc-toggle__btn ${!view3D ? "calc-toggle__btn--active" : ""}`} 
+            onClick={() => setView3D(false)}
+          >2D</button>
+          <button 
+            className={`calc-toggle__btn ${view3D ? "calc-toggle__btn--active" : ""}`} 
+            onClick={() => setView3D(true)}
+          >3D</button>
+        </div>
       </div>
-      <h3 className="tableaux-title">Vértices de la Región Factible</h3>
-      <div className="vertices-grid">
-        {data.vertices?.map((v, i) => (
-          <div key={i} className={`vertex-chip ${v.is_optimal ? "vertex-chip--optimal" : ""}`}>
-            <KTex src={`(${formatNumber(v.x)},\\,${formatNumber(v.y)})`} />
-            <span className="vertex-z">Z={formatNumber(v.z_value)}</span>
-            {v.is_optimal && <span className="vertex-star">★</span>}
-          </div>
-        ))}
+      
+      <div className="mt-4 w-full">
+        {view3D ? (
+          <Graph3D result={renderData} />
+        ) : (
+          <Graph2D result={data} objCoeffs={[0, 0]} />
+        )}
       </div>
     </div>
   );

@@ -428,28 +428,30 @@ def solve_graphical_method(
     constraints: List[Dict],
 ) -> Dict[str, Any]:
     """
-    Método Gráfico para PL con 2 variables.
-    Calcula vértices de la región factible y punto óptimo.
+    Método Gráfico para PL con 2 o 3 variables.
+    Calcula vértices de la región factible, caras (si es 3D), y punto óptimo.
     """
-    if len(obj_coeffs) != 2:
+    num_vars = len(obj_coeffs)
+    if num_vars not in [2, 3]:
         return {
             "status": "error",
-            "error_message": "El método gráfico solo soporta 2 variables.",
+            "error_message": "El método gráfico solo soporta 2 o 3 variables.",
             "vertices": [],
             "constraint_lines": [],
         }
 
     from itertools import combinations
+    import scipy.spatial
 
-    n = len(constraints)
     # Agregar restricciones de no negatividad
-    all_constraints = list(constraints) + [
-        {"coefficients": [1, 0], "operator": ">=", "rhs": 0},
-        {"coefficients": [0, 1], "operator": ">=", "rhs": 0},
-    ]
+    all_constraints = list(constraints)
+    for i in range(num_vars):
+        coeffs = [0.0] * num_vars
+        coeffs[i] = 1.0
+        all_constraints.append({"coefficients": coeffs, "operator": ">=", "rhs": 0.0})
 
-    def constraint_satisfied(x, y, c):
-        val = c["coefficients"][0] * x + c["coefficients"][1] * y
+    def constraint_satisfied(pt, c):
+        val = sum(c["coefficients"][k] * pt[k] for k in range(num_vars))
         if c["operator"] == "<=":
             return val <= c["rhs"] + 1e-8
         elif c["operator"] == ">=":
@@ -457,37 +459,42 @@ def solve_graphical_method(
         else:
             return abs(val - c["rhs"]) < 1e-8
 
-    # Encontrar intersecciones entre pares de restricciones
-    vertices = []
+    # Encontrar intersecciones entre k restricciones
+    vertices_dict = {}
     extended = all_constraints
 
-    for i, j in combinations(range(len(extended)), 2):
-        c1, c2 = extended[i], extended[j]
-        A = np.array([
-            c1["coefficients"],
-            c2["coefficients"],
-        ], dtype=float)
-        b_vec = np.array([c1["rhs"], c2["rhs"]], dtype=float)
+    for indices in combinations(range(len(extended)), num_vars):
+        subset = [extended[idx] for idx in indices]
+        A = np.array([c["coefficients"] for c in subset], dtype=float)
+        b_vec = np.array([c["rhs"] for c in subset], dtype=float)
 
         try:
             if abs(np.linalg.det(A)) < 1e-10:
                 continue
             point = np.linalg.solve(A, b_vec)
-            x, y = point
-            if x < -1e-6 or y < -1e-6:
+            
+            if any(p < -1e-6 for p in point):
                 continue
 
             # Verificar factibilidad en todas las restricciones originales
-            feasible = all(constraint_satisfied(x, y, c) for c in constraints)
+            feasible = all(constraint_satisfied(point, c) for c in constraints)
             if feasible:
-                vertices.append({
-                    "x": _fraction_round(x),
-                    "y": _fraction_round(y),
-                    "is_optimal": False,
-                    "z_value": _fraction_round(obj_coeffs[0] * x + obj_coeffs[1] * y),
-                })
+                pt_tuple = tuple(_fraction_round(p) for p in point)
+                if pt_tuple not in vertices_dict:
+                    z_val = _fraction_round(sum(obj_coeffs[k] * pt_tuple[k] for k in range(num_vars)))
+                    vertex = {
+                        "x": pt_tuple[0],
+                        "y": pt_tuple[1],
+                        "is_optimal": False,
+                        "z_value": z_val,
+                    }
+                    if num_vars == 3:
+                        vertex["z"] = pt_tuple[2]
+                    vertices_dict[pt_tuple] = vertex
         except np.linalg.LinAlgError:
             continue
+
+    vertices = list(vertices_dict.values())
 
     if not vertices:
         return {
@@ -500,32 +507,48 @@ def solve_graphical_method(
     # Encontrar óptimo
     sense = max if obj_type == "MAX" else min
     optimal = sense(vertices, key=lambda v: v["z_value"])
-    optimal["is_optimal"] = True
+    # Marcar todos los óptimos (puede haber múltiples)
+    opt_val = optimal["z_value"]
+    for v in vertices:
+        if abs(v["z_value"] - opt_val) < 1e-8:
+            v["is_optimal"] = True
 
-    # Líneas para graficar restricciones
-    x_max = max(v["x"] for v in vertices) * 1.5 + 2
+    faces = None
     constraint_lines = []
-    for i, c in enumerate(constraints):
-        a1, a2 = c["coefficients"]
-        rhs = c["rhs"]
-        if abs(a2) > 1e-10:
-            x_pts = [0, x_max]
-            y_pts = [(rhs - a1 * x) / a2 for x in x_pts]
-        elif abs(a1) > 1e-10:
-            x_pts = [rhs / a1, rhs / a1]
-            y_pts = [0, x_max]
-        else:
-            continue
-        constraint_lines.append({
-            "id": f"c{i+1}",
-            "label": f"R{i+1}",
-            "x_pts": x_pts,
-            "y_pts": [_fraction_round(y) for y in y_pts],
-            "operator": c["operator"],
-            "rhs": rhs,
-        })
 
-    return {
+    if num_vars == 2:
+        # Líneas para graficar restricciones en 2D
+        x_max = max(v["x"] for v in vertices) * 1.5 + 2
+        for i, c in enumerate(constraints):
+            a1, a2 = c["coefficients"]
+            rhs = c["rhs"]
+            if abs(a2) > 1e-10:
+                x_pts = [0, x_max]
+                y_pts = [(rhs - a1 * x) / a2 for x in x_pts]
+            elif abs(a1) > 1e-10:
+                x_pts = [rhs / a1, rhs / a1]
+                y_pts = [0, x_max]
+            else:
+                continue
+            constraint_lines.append({
+                "id": f"c{i+1}",
+                "label": f"R{i+1}",
+                "x_pts": x_pts,
+                "y_pts": [_fraction_round(y) for y in y_pts],
+                "operator": c["operator"],
+                "rhs": rhs,
+            })
+    elif num_vars == 3:
+        if len(vertices) >= 4:
+            try:
+                pts_array = np.array([[v["x"], v["y"], v["z"]] for v in vertices])
+                hull = scipy.spatial.ConvexHull(pts_array)
+                faces = hull.simplices.tolist()
+            except scipy.spatial.qhull.QhullError:
+                # Si los puntos son coplanares o degenerados
+                faces = []
+
+    res = {
         "status": "optimal",
         "vertices": vertices,
         "optimal_point": optimal,
@@ -533,3 +556,7 @@ def solve_graphical_method(
         "constraint_lines": constraint_lines,
         "error_message": None,
     }
+    if faces is not None:
+        res["faces"] = faces
+        
+    return res

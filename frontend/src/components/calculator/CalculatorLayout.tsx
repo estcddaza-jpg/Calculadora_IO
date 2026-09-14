@@ -65,7 +65,7 @@ export default function CalculatorLayout() {
     };
   }, [pasteToActiveRow]);
 
-  const handleSolve = useCallback(async () => {
+  const handleSolve = useCallback(async (overrideMethod?: SolveMethod) => {
     const model = getParsedModel();
     if (!model) {
       setResult({ kind: "error", message: "Modelo incompleto. Ingresa la función objetivo y al menos una restricción." });
@@ -76,14 +76,16 @@ export default function CalculatorLayout() {
     setLoading(true);
     setResultsOpen(true);
 
+    const methodToUse = overrideMethod || method;
+
     try {
-      if (method === "simplex") {
+      if (methodToUse === "simplex") {
         const data = await solveLinearSimplex(model);
         setResult({ kind: "simplex", data });
-      } else if (method === "revised") {
+      } else if (methodToUse === "revised") {
         const data = await solveRevisedSimplex(model);
         setResult({ kind: "revised", data });
-      } else if (method === "graphical") {
+      } else if (methodToUse === "graphical") {
         const data = await solveGraphical(model);
         setResult({ kind: "graphical", data });
       } else {
@@ -110,12 +112,16 @@ export default function CalculatorLayout() {
           {/* Mode selector */}
           <select
             className="calc-select"
-            value={mode}
-            onChange={(e) => setMode(e.target.value as "linear" | "networks" | "queues" | "advanced")}
+            value="linear"
+            onChange={(e) => {
+              if (e.target.value === "networks") window.location.href = "/networks";
+              else setMode(e.target.value as any);
+            }}
           >
-            {Object.entries(MODE_LABELS).map(([k, v]) => (
-              <option key={k} value={k}>{v}</option>
-            ))}
+            <option value="linear">📐 Programación Lineal</option>
+            <option value="networks">🕸️ Redes y Proyectos</option>
+            <option value="queues">🕒 Teoría de Colas</option>
+            <option value="advanced">📈 Modelos Avanzados</option>
           </select>
 
           {/* OPT type toggle */}
@@ -135,13 +141,13 @@ export default function CalculatorLayout() {
           {/* Method selector */}
           {mode === "linear" && (
             <div className="calc-toggle">
-              {(["simplex", "revised", "graphical", "dual"] as SolveMethod[]).map((m) => (
+              {(["simplex", "revised", "dual"] as SolveMethod[]).map((m) => (
                 <button
                   key={m}
                   className={`calc-toggle__btn calc-toggle__btn--sm ${method === m ? "calc-toggle__btn--active" : ""}`}
                   onClick={() => setMethod(m)}
                 >
-                  {m === "simplex" ? "Estándar" : m === "revised" ? "Revisado" : m === "graphical" ? "Gráfico" : "Dual"}
+                  {m === "simplex" ? "Estándar" : m === "revised" ? "Revisado" : "Dual"}
                 </button>
               ))}
             </div>
