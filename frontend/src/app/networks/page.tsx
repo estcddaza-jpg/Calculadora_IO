@@ -122,17 +122,17 @@ function TransportSection() {
   const n = demand.length;
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      <div className="space-y-4">
-        <div className="glass-card p-5">
-          <h2 className="text-base font-semibold text-white mb-4">Problema de Transporte</h2>
+    <div className={`w-full transition-all ${result ? "grid lg:grid-cols-2 gap-8 items-start" : "flex flex-col items-center"}`}>
+      <div className={`space-y-4 w-full ${!result ? "max-w-4xl" : ""}`}>
+        <div className="glass-card p-6 md:p-10 space-y-6">
+          <h2 className="text-2xl font-bold text-white mb-2">Problema de Transporte</h2>
 
           <div className="mb-4">
-            <label className="block text-xs text-slate-400 mb-1.5">Método</label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Método de Solución</label>
             <select
               value={method}
               onChange={(e) => setMethod(e.target.value)}
-              className="styled-select"
+              className="styled-select text-base py-3.5 px-4 w-full"
               id="transport-method"
             >
               <option value="northwest">Esquina Noroeste</option>
@@ -143,22 +143,22 @@ function TransportSection() {
 
           {/* Tabla de costos */}
           <div className="overflow-x-auto">
-            <table className="simplex-table text-sm">
+            <table className="simplex-table text-base w-full my-3">
               <thead>
                 <tr>
-                  <th className="py-2.5">Origen\Destino</th>
+                  <th className="py-3 px-3 text-center">Origen\Destino</th>
                   {demand.map((_, j) => (
-                    <th key={j} className="py-2.5">D{j + 1}</th>
+                    <th key={j} className="py-3 px-3 text-center">D{j + 1}</th>
                   ))}
-                  <th className="py-2.5 text-teal-400">Oferta</th>
+                  <th className="py-3 px-3 text-center text-teal-400 font-bold">Oferta</th>
                 </tr>
               </thead>
               <tbody>
                 {supply.map((s, i) => (
                   <tr key={i}>
-                    <td className="basic-var-col font-bold">O{i + 1}</td>
+                    <td className="basic-var-col font-bold text-center">O{i + 1}</td>
                     {demand.map((_, j) => (
-                      <td key={j} className="py-2">
+                      <td key={j} className="py-3 px-2 text-center">
                         <input
                           type="number"
                           value={costs[i]?.[j] ?? 0}
@@ -167,12 +167,12 @@ function TransportSection() {
                             newCosts[i][j] = Number(e.target.value);
                             setCosts(newCosts);
                           }}
-                          className="number-input w-16 h-10 text-center font-bold"
+                          className="number-input w-24 h-12 text-center font-bold text-base mx-auto block"
                           id={`cost-${i}-${j}`}
                         />
                       </td>
                     ))}
-                    <td className="py-2">
+                    <td className="py-3 px-2 text-center">
                       <input
                         type="number"
                         value={s}
@@ -181,16 +181,16 @@ function TransportSection() {
                           arr[i] = Number(e.target.value);
                           setSupply(arr);
                         }}
-                        className="number-input w-16 h-10 text-center text-teal-300 font-bold"
+                        className="number-input w-24 h-12 text-center text-teal-300 font-bold text-base mx-auto block"
                         id={`supply-${i}`}
                       />
                     </td>
                   </tr>
                 ))}
                 <tr>
-                  <td className="text-blue-400 font-bold text-sm">Demanda</td>
+                  <td className="text-blue-400 font-bold text-base text-center">Demanda</td>
                   {demand.map((d, j) => (
-                    <td key={j} className="py-2">
+                    <td key={j} className="py-3 px-2 text-center">
                       <input
                         type="number"
                         value={d}
@@ -199,12 +199,12 @@ function TransportSection() {
                           arr[j] = Number(e.target.value);
                           setDemand(arr);
                         }}
-                        className="number-input w-16 h-10 text-center text-blue-300 font-bold"
+                        className="number-input w-24 h-12 text-center text-blue-300 font-bold text-base mx-auto block"
                         id={`demand-${j}`}
                       />
                     </td>
                   ))}
-                  <td className="text-slate-400 text-xs font-semibold">
+                  <td className="text-slate-400 text-xs font-semibold text-center">
                     {Math.abs(supply.reduce((a, b) => a + b, 0) - demand.reduce((a, b) => a + b, 0)) < 0.01
                       ? "✓ Balanceado"
                       : "⚠ Desbalanceado"}
@@ -217,7 +217,7 @@ function TransportSection() {
           <button
             onClick={handleSolve}
             disabled={loading}
-            className="btn-primary w-full mt-5 py-3.5 text-base font-bold"
+            className="btn-primary w-full mt-6 py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide"
             id="transport-solve-btn"
           >
             {loading ? "Resolviendo..." : "⚡ Resolver Transporte"}
@@ -226,36 +226,36 @@ function TransportSection() {
         </div>
       </div>
 
-      <div>
-        {result && (
-          <div className="glass-card p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-white">Asignación Óptima</h3>
-              <div className="alert-success py-1 px-3 text-sm">
-                Costo Total: <strong className="text-teal-300">{result.total_cost}</strong>
+      {result && (
+        <div className="space-y-4 w-full">
+          <div className="glass-card p-6 md:p-8 space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <h3 className="text-xl font-bold text-white">Asignación Óptima</h3>
+              <div className="alert-success py-1.5 px-4 text-base font-semibold">
+                Costo Total: <strong className="text-teal-300 text-lg">{result.total_cost}</strong>
               </div>
             </div>
             {result.dummy_added && (
-              <div className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg p-2">
+              <div className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
                 ⚠️ {result.dummy_added}
               </div>
             )}
             <div className="overflow-x-auto">
-              <table className="simplex-table text-sm">
+              <table className="simplex-table text-base w-full text-center">
                 <thead>
                   <tr>
-                    <th>Origen</th>
+                    <th className="py-3">Origen</th>
                     {result.allocation[0]?.map((_: any, j: number) => (
-                      <th key={j}>D{j + 1}</th>
+                      <th key={j} className="py-3">D{j + 1}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {result.allocation?.map((row: any[], i: number) => (
                     <tr key={i}>
-                      <td className="basic-var-col">O{i + 1}</td>
+                      <td className="basic-var-col font-bold">O{i + 1}</td>
                       {row.map((val, j) => (
-                        <td key={j} className={val !== null && val > 0 ? "text-teal-300 font-bold" : "text-slate-600"}>
+                        <td key={j} className={`py-3 ${val !== null && val > 0 ? "text-teal-300 font-bold text-lg" : "text-slate-600"}`}>
                           {val !== null ? val : "—"}
                         </td>
                       ))}
@@ -265,8 +265,8 @@ function TransportSection() {
               </table>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -300,97 +300,99 @@ function CPMSection() {
   };
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      <div className="glass-card p-5 space-y-4">
-        <h2 className="text-base font-semibold text-white">
-          Método de Ruta Crítica (CPM)
-        </h2>
-        <div className="space-y-2">
-          {activities.map((act, i) => (
-            <div key={i} className="flex items-center gap-2 text-sm">
-              <span className="text-slate-500 w-4">{i + 1}</span>
-              <input
-                value={act.id}
-                onChange={(e) => {
-                  const arr = [...activities];
-                  arr[i] = { ...arr[i], id: e.target.value };
-                  setActivities(arr);
-                }}
-                className="number-input w-12 text-center"
-                placeholder="ID"
-                id={`act-id-${i}`}
-              />
-              <input
-                value={act.name}
-                onChange={(e) => {
-                  const arr = [...activities];
-                  arr[i] = { ...arr[i], name: e.target.value };
-                  setActivities(arr);
-                }}
-                className="number-input flex-1"
-                placeholder="Nombre"
-                id={`act-name-${i}`}
-              />
-              <input
-                type="number"
-                value={act.duration}
-                onChange={(e) => {
-                  const arr = [...activities];
-                  arr[i] = { ...arr[i], duration: Number(e.target.value) };
-                  setActivities(arr);
-                }}
-                className="number-input w-16"
-                placeholder="Dur."
-                id={`act-dur-${i}`}
-              />
-              <input
-                value={act.predecessors.join(",")}
-                onChange={(e) => {
-                  const arr = [...activities];
-                  arr[i] = {
-                    ...arr[i],
-                    predecessors: e.target.value
-                      .split(",")
-                      .map((s) => s.trim())
-                      .filter(Boolean),
-                  };
-                  setActivities(arr);
-                }}
-                className="number-input w-24"
-                placeholder="Pred."
-                id={`act-pred-${i}`}
-              />
-            </div>
-          ))}
+    <div className={`w-full transition-all ${result ? "grid lg:grid-cols-2 gap-8 items-start" : "flex flex-col items-center"}`}>
+      <div className={`space-y-4 w-full ${!result ? "max-w-4xl" : ""}`}>
+        <div className="glass-card p-6 md:p-10 space-y-6">
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Método de Ruta Crítica (CPM)
+          </h2>
+          <div className="space-y-2.5">
+            {activities.map((act, i) => (
+              <div key={i} className="flex items-center gap-2.5 text-sm">
+                <span className="text-slate-400 font-bold w-5">{i + 1}</span>
+                <input
+                  value={act.id}
+                  onChange={(e) => {
+                    const arr = [...activities];
+                    arr[i] = { ...arr[i], id: e.target.value };
+                    setActivities(arr);
+                  }}
+                  className="number-input w-16 h-11 text-center font-bold text-base"
+                  placeholder="ID"
+                  id={`act-id-${i}`}
+                />
+                <input
+                  value={act.name}
+                  onChange={(e) => {
+                    const arr = [...activities];
+                    arr[i] = { ...arr[i], name: e.target.value };
+                    setActivities(arr);
+                  }}
+                  className="number-input flex-1 h-11 text-base px-3"
+                  placeholder="Nombre"
+                  id={`act-name-${i}`}
+                />
+                <input
+                  type="number"
+                  value={act.duration}
+                  onChange={(e) => {
+                    const arr = [...activities];
+                    arr[i] = { ...arr[i], duration: Number(e.target.value) };
+                    setActivities(arr);
+                  }}
+                  className="number-input w-20 h-11 text-center font-bold text-base"
+                  placeholder="Dur."
+                  id={`act-dur-${i}`}
+                />
+                <input
+                  value={act.predecessors.join(",")}
+                  onChange={(e) => {
+                    const arr = [...activities];
+                    arr[i] = {
+                      ...arr[i],
+                      predecessors: e.target.value
+                        .split(",")
+                        .map((s) => s.trim())
+                        .filter(Boolean),
+                    };
+                    setActivities(arr);
+                  }}
+                  className="number-input w-28 h-11 text-center text-sm font-semibold"
+                  placeholder="Pred. (A,B)"
+                  id={`act-pred-${i}`}
+                />
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={handleSolve}
+            disabled={loading}
+            className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide"
+            id="cpm-solve-btn"
+          >
+            {loading ? "Calculando..." : "⚡ Calcular CPM"}
+          </button>
+          {error && <div className="alert-error text-sm">{error}</div>}
         </div>
-        <button
-          onClick={handleSolve}
-          disabled={loading}
-          className="btn-primary w-full py-3.5 text-base font-bold"
-          id="cpm-solve-btn"
-        >
-          {loading ? "Calculando..." : "⚡ Calcular CPM"}
-        </button>
-        {error && <div className="alert-error text-sm">{error}</div>}
       </div>
 
-      <div>
-        {result && (
-          <div className="glass-card p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-white">Resultados CPM</h3>
-              <span className="badge badge-optimal">
+      {result && (
+        <div className="space-y-4 w-full">
+          <div className="glass-card p-6 md:p-8 space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <h3 className="text-xl font-bold text-white">Resultados CPM</h3>
+              <span className="badge badge-optimal text-base px-3 py-1 font-semibold">
                 Duración: {result.project_duration} días
               </span>
             </div>
-            <div className="text-sm">
-              <span className="text-slate-400">Ruta Crítica: </span>
-              <span className="text-rose-400 font-semibold">
+            <div className="text-base bg-rose-500/10 p-3.5 rounded-xl border border-rose-500/20">
+              <span className="text-slate-400 font-semibold">Ruta Crítica: </span>
+              <span className="text-rose-400 font-bold text-lg font-mono">
                 {result.critical_path?.join(" → ")}
               </span>
             </div>
             <div className="overflow-x-auto">
-              <table className="simplex-table text-xs">
+              <table className="simplex-table text-sm w-full text-center">
                 <thead>
                   <tr>
                     <th>Act.</th>
@@ -404,16 +406,16 @@ function CPMSection() {
                 </thead>
                 <tbody>
                   {result.activities?.map((a: any) => (
-                    <tr key={a.id} className={a.is_critical ? "bg-rose-500/5" : ""}>
+                    <tr key={a.id} className={a.is_critical ? "bg-rose-500/10 font-bold" : ""}>
                       <td className="basic-var-col">{a.name}</td>
                       <td>{a.ES}</td>
                       <td>{a.EF}</td>
                       <td>{a.LS}</td>
                       <td>{a.LF}</td>
-                      <td>{a.slack}</td>
+                      <td className={a.is_critical ? "text-rose-400 font-bold" : ""}>{a.slack}</td>
                       <td>
                         {a.is_critical ? (
-                          <span className="badge badge-critical text-xs">✓</span>
+                          <span className="badge badge-critical text-xs">✓ SÍ</span>
                         ) : (
                           <span className="text-slate-600">—</span>
                         )}
@@ -424,8 +426,8 @@ function CPMSection() {
               </table>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -461,116 +463,118 @@ function PERTSection() {
   };
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      <div className="glass-card p-5 space-y-4">
-        <h2 className="text-base font-semibold text-white">PERT — 3 Estimados de Tiempo</h2>
-        <div className="text-xs text-slate-500 mb-2">
-          <KaTeXDisplay latex="t_e = \\frac{t_o + 4t_m + t_p}{6}, \\ \\sigma^2 = \\left(\\frac{t_p - t_o}{6}\\right)^2" />
-        </div>
-        <div className="space-y-2 text-xs">
-          <div className="grid grid-cols-6 gap-1 text-slate-400 font-semibold px-1">
-            <span>ID</span>
-            <span className="col-span-2">Nombre</span>
-            <span>to</span>
-            <span>tm</span>
-            <span>tp</span>
+    <div className={`w-full transition-all ${result ? "grid lg:grid-cols-2 gap-8 items-start" : "flex flex-col items-center"}`}>
+      <div className={`space-y-4 w-full ${!result ? "max-w-4xl" : ""}`}>
+        <div className="glass-card p-6 md:p-10 space-y-6">
+          <h2 className="text-2xl font-bold text-white mb-1">PERT — 3 Estimados de Tiempo</h2>
+          <div className="text-sm text-slate-400 mb-2">
+            <KaTeXDisplay latex="t_e = \\frac{t_o + 4t_m + t_p}{6}, \\ \\sigma^2 = \\left(\\frac{t_p - t_o}{6}\\right)^2" />
           </div>
-          {activities.map((act, i) => (
-            <div key={i} className="grid grid-cols-6 gap-1">
-              <input
-                value={act.id}
-                onChange={(e) => {
-                  const arr = [...activities];
-                  arr[i] = { ...arr[i], id: e.target.value };
-                  setActivities(arr);
-                }}
-                className="number-input text-center"
-                id={`pert-id-${i}`}
-              />
-              <input
-                value={act.name}
-                onChange={(e) => {
-                  const arr = [...activities];
-                  arr[i] = { ...arr[i], name: e.target.value };
-                  setActivities(arr);
-                }}
-                className="number-input col-span-2"
-                id={`pert-name-${i}`}
-              />
-              {(["optimistic", "most_likely", "pessimistic"] as const).map((field) => (
+          <div className="space-y-2.5">
+            <div className="grid grid-cols-6 gap-2 text-slate-400 font-semibold px-1 text-xs uppercase tracking-wider">
+              <span>ID</span>
+              <span className="col-span-2">Nombre</span>
+              <span className="text-center">to</span>
+              <span className="text-center">tm</span>
+              <span className="text-center">tp</span>
+            </div>
+            {activities.map((act, i) => (
+              <div key={i} className="grid grid-cols-6 gap-2 items-center">
                 <input
-                  key={field}
-                  type="number"
-                  value={act[field]}
+                  value={act.id}
                   onChange={(e) => {
                     const arr = [...activities];
-                    arr[i] = { ...arr[i], [field]: Number(e.target.value) };
+                    arr[i] = { ...arr[i], id: e.target.value };
                     setActivities(arr);
                   }}
-                  className="number-input text-center"
-                  id={`pert-${field}-${i}`}
+                  className="number-input text-center h-11 text-base font-bold"
+                  id={`pert-id-${i}`}
                 />
-              ))}
-            </div>
-          ))}
+                <input
+                  value={act.name}
+                  onChange={(e) => {
+                    const arr = [...activities];
+                    arr[i] = { ...arr[i], name: e.target.value };
+                    setActivities(arr);
+                  }}
+                  className="number-input col-span-2 h-11 text-base px-3"
+                  id={`pert-name-${i}`}
+                />
+                {(["optimistic", "most_likely", "pessimistic"] as const).map((field) => (
+                  <input
+                    key={field}
+                    type="number"
+                    value={act[field]}
+                    onChange={(e) => {
+                      const arr = [...activities];
+                      arr[i] = { ...arr[i], [field]: Number(e.target.value) };
+                      setActivities(arr);
+                    }}
+                    className="number-input text-center h-11 text-base font-bold"
+                    id={`pert-${field}-${i}`}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-3 items-center pt-2">
+            <label className="text-sm font-semibold text-slate-300 whitespace-nowrap">
+              Tiempo objetivo (para P):
+            </label>
+            <input
+              type="number"
+              value={targetTime}
+              onChange={(e) =>
+                setTargetTime(e.target.value === "" ? "" : Number(e.target.value))
+              }
+              className="number-input w-32 h-11 text-center font-bold text-base"
+              placeholder="Opcional"
+              id="pert-target-time"
+            />
+          </div>
+          <button
+            onClick={handleSolve}
+            disabled={loading}
+            className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide"
+            id="pert-solve-btn"
+          >
+            {loading ? "Calculando..." : "⚡ Calcular PERT"}
+          </button>
+          {error && <div className="alert-error text-sm">{error}</div>}
         </div>
-        <div className="flex gap-2 items-center">
-          <label className="text-xs text-slate-400 whitespace-nowrap">
-            Tiempo objetivo (para P):
-          </label>
-          <input
-            type="number"
-            value={targetTime}
-            onChange={(e) =>
-              setTargetTime(e.target.value === "" ? "" : Number(e.target.value))
-            }
-            className="number-input w-24"
-            placeholder="Opcional"
-            id="pert-target-time"
-          />
-        </div>
-        <button
-          onClick={handleSolve}
-          disabled={loading}
-          className="btn-primary w-full py-3.5 text-base font-bold"
-          id="pert-solve-btn"
-        >
-          {loading ? "Calculando..." : "⚡ Calcular PERT"}
-        </button>
-        {error && <div className="alert-error text-sm">{error}</div>}
       </div>
 
-      <div>
-        {result && (
-          <div className="glass-card p-5 space-y-4">
-            <h3 className="font-semibold text-white">Resultados PERT</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white/3 rounded-xl p-3 border border-white/6">
-                <div className="text-xs text-slate-400 mb-1">Duración Esperada</div>
-                <div className="text-xl font-bold text-blue-300">
+      {result && (
+        <div className="space-y-4 w-full">
+          <div className="glass-card p-6 md:p-8 space-y-6">
+            <h3 className="text-xl font-bold text-white pb-3 border-b border-white/10">Resultados PERT</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                <div className="text-xs text-slate-400 font-semibold mb-1">Duración Esperada</div>
+                <div className="text-2xl font-black text-blue-300">
                   {result.expected_duration}
                 </div>
               </div>
-              <div className="bg-white/3 rounded-xl p-3 border border-white/6">
-                <div className="text-xs text-slate-400 mb-1">Desviación Estándar</div>
-                <div className="text-xl font-bold text-violet-300">
+              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                <div className="text-xs text-slate-400 font-semibold mb-1">Desviación Estándar</div>
+                <div className="text-2xl font-black text-violet-300">
                   {result.project_std_dev?.toFixed(4)}
                 </div>
               </div>
             </div>
             {result.probability_data && (
-              <div className="bg-teal-500/10 border border-teal-500/20 rounded-xl p-4">
+              <div className="bg-teal-500/10 border border-teal-500/20 rounded-2xl p-4">
                 <p className="text-teal-300 font-semibold mb-1">Probabilidad de completar en T={result.probability_data.target_time}</p>
-                <div className="flex gap-4 text-sm">
+                <div className="flex gap-4 items-center text-sm">
                   <span className="text-slate-400">Z = {result.probability_data.Z_score}</span>
-                  <span className="text-teal-400 font-bold text-lg">
+                  <span className="text-teal-400 font-extrabold text-xl">
                     P = {(result.probability_data.probability * 100).toFixed(2)}%
                   </span>
                 </div>
               </div>
             )}
             <div className="overflow-x-auto">
-              <table className="simplex-table text-xs">
+              <table className="simplex-table text-sm w-full text-center">
                 <thead>
                   <tr>
                     <th>Act.</th>
@@ -582,14 +586,14 @@ function PERTSection() {
                 </thead>
                 <tbody>
                   {result.activities?.map((a: any) => (
-                    <tr key={a.id} className={a.is_critical ? "bg-rose-500/5" : ""}>
+                    <tr key={a.id} className={a.is_critical ? "bg-rose-500/10 font-bold" : ""}>
                       <td className="basic-var-col">{a.name}</td>
                       <td>{a.expected_time}</td>
                       <td>{a.variance?.toFixed(4)}</td>
                       <td>{a.slack}</td>
                       <td>
                         {a.is_critical ? (
-                          <span className="badge badge-critical text-xs">✓</span>
+                          <span className="badge badge-critical text-xs">✓ SÍ</span>
                         ) : "—"}
                       </td>
                     </tr>
@@ -598,8 +602,8 @@ function PERTSection() {
               </table>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -648,111 +652,113 @@ function QueuesSection() {
     : [];
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      <div className="glass-card p-5 space-y-4">
-        <h2 className="text-base font-semibold text-white">Teoría de Colas</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs text-slate-400 mb-1.5">Modelo</label>
-            <select
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              className="styled-select"
-              id="queue-model"
-            >
-              <option value="MM1">M/M/1</option>
-              <option value="MMs">M/M/s</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-slate-400 mb-1.5">
-              <KaTeXDisplay latex="\\lambda" /> — Tasa de llegada
-            </label>
-            <input
-              type="number"
-              value={lambda}
-              onChange={(e) => setLambda(Number(e.target.value))}
-              className="number-input"
-              step="0.1"
-              id="queue-lambda"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-slate-400 mb-1.5">
-              <KaTeXDisplay latex="\\mu" /> — Tasa de servicio
-            </label>
-            <input
-              type="number"
-              value={mu}
-              onChange={(e) => setMu(Number(e.target.value))}
-              className="number-input"
-              step="0.1"
-              id="queue-mu"
-            />
-          </div>
-          {model === "MMs" && (
+    <div className={`w-full transition-all ${result ? "grid lg:grid-cols-2 gap-8 items-start" : "flex flex-col items-center"}`}>
+      <div className={`space-y-4 w-full ${!result ? "max-w-4xl" : ""}`}>
+        <div className="glass-card p-6 md:p-10 space-y-6">
+          <h2 className="text-2xl font-bold text-white mb-2">Teoría de Colas</h2>
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">
-                s — Servidores
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Modelo</label>
+              <select
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                className="styled-select text-base py-3.5 px-4 w-full"
+                id="queue-model"
+              >
+                <option value="MM1">M/M/1</option>
+                <option value="MMs">M/M/s</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <KaTeXDisplay latex="\\lambda" /> — Tasa de llegada
               </label>
               <input
                 type="number"
-                min={1}
-                value={servers}
-                onChange={(e) => setServers(Number(e.target.value))}
-                className="number-input"
-                id="queue-servers"
+                value={lambda}
+                onChange={(e) => setLambda(Number(e.target.value))}
+                className="number-input w-full h-12 text-center font-bold text-lg"
+                step="0.1"
+                id="queue-lambda"
               />
             </div>
-          )}
-          <div>
-            <label className="block text-xs text-slate-400 mb-1.5">
-              N máximo para Pn
-            </label>
-            <input
-              type="number"
-              min={5}
-              value={maxN}
-              onChange={(e) => setMaxN(Number(e.target.value))}
-              className="number-input"
-              id="queue-maxn"
-            />
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <KaTeXDisplay latex="\\mu" /> — Tasa de servicio
+              </label>
+              <input
+                type="number"
+                value={mu}
+                onChange={(e) => setMu(Number(e.target.value))}
+                className="number-input w-full h-12 text-center font-bold text-lg"
+                step="0.1"
+                id="queue-mu"
+              />
+            </div>
+            {model === "MMs" && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                  s — Servidores
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={servers}
+                  onChange={(e) => setServers(Number(e.target.value))}
+                  className="number-input w-full h-12 text-center font-bold text-lg"
+                  id="queue-servers"
+                />
+              </div>
+            )}
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                N máximo para Pn
+              </label>
+              <input
+                type="number"
+                min={5}
+                value={maxN}
+                onChange={(e) => setMaxN(Number(e.target.value))}
+                className="number-input w-full h-12 text-center font-bold text-lg"
+                id="queue-maxn"
+              />
+            </div>
           </div>
+          <button
+            onClick={handleSolve}
+            disabled={loading}
+            className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide"
+            id="queue-solve-btn"
+          >
+            {loading ? "Calculando..." : "⚡ Calcular Modelo de Colas"}
+          </button>
+          {error && <div className="alert-error text-sm">{error}</div>}
         </div>
-        <button
-          onClick={handleSolve}
-          disabled={loading}
-          className="btn-primary w-full py-3.5 text-base font-bold"
-          id="queue-solve-btn"
-        >
-          {loading ? "Calculando..." : "⚡ Calcular Modelo de Colas"}
-        </button>
-        {error && <div className="alert-error text-sm">{error}</div>}
       </div>
 
-      <div>
-        {result && (
-          <div className="glass-card p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-white">Resultados {result.model}</h3>
-              <span className={`badge ${result.rho < 0.8 ? "badge-optimal" : "badge-critical"}`}>
+      {result && (
+        <div className="space-y-4 w-full">
+          <div className="glass-card p-6 md:p-8 space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <h3 className="text-xl font-bold text-white">Resultados {result.model}</h3>
+              <span className={`badge text-base px-3 py-1 font-semibold ${result.rho < 0.8 ? "badge-optimal" : "badge-critical"}`}>
                 ρ = {result.rho?.toFixed(4)}
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {metrics.map((m, i) => (
                 <div
                   key={i}
-                  className="bg-white/3 rounded-xl p-3 border border-white/6"
+                  className="bg-white/5 rounded-2xl p-4 border border-white/10"
                 >
                   <div className="flex items-center gap-1.5 mb-1">
                     <KaTeXDisplay latex={m.latex} className="text-slate-400 text-xs" />
                     <span className="text-xs text-slate-500">—</span>
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-slate-400 font-medium">
                       {m.label.split("—")[1]}
                     </span>
                   </div>
-                  <div className={`text-xl font-bold font-mono ${m.color}`}>
+                  <div className={`text-2xl font-black font-mono ${m.color}`}>
                     {typeof m.value === "number" ? m.value.toFixed(4) : m.value}
                   </div>
                 </div>
@@ -765,8 +771,8 @@ function QueuesSection() {
                 <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                   Distribución P(n)
                 </h4>
-                <div className="max-h-48 overflow-y-auto rounded-xl border border-white/8">
-                  <table className="simplex-table text-xs">
+                <div className="max-h-48 overflow-y-auto rounded-xl border border-white/10">
+                  <table className="simplex-table text-sm w-full text-center">
                     <thead>
                       <tr>
                         <th>n</th>
@@ -777,9 +783,9 @@ function QueuesSection() {
                     <tbody>
                       {result.Pn.map((p: { n: number; Pn: number }) => (
                         <tr key={p.n}>
-                          <td>{p.n}</td>
-                          <td className="text-blue-300">{p.Pn.toFixed(6)}</td>
-                          <td className="text-slate-400">
+                          <td className="font-bold">{p.n}</td>
+                          <td className="text-blue-300 font-mono">{p.Pn.toFixed(6)}</td>
+                          <td className="text-slate-300 font-semibold">
                             {(p.Pn * 100).toFixed(3)}%
                           </td>
                         </tr>
@@ -790,8 +796,8 @@ function QueuesSection() {
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1016,89 +1022,91 @@ function AssignmentSection() {
   };
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      <div className="glass-card p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-white">Problema de Asignación</h2>
-          <div className="flex gap-2">
-            {(["MIN", "MAX"] as const).map((t) => (
-              <button key={t} onClick={() => setType(t)}
-                className={`px-3 py-1 rounded text-xs font-bold transition-all ${
-                  type === t ? "bg-orange-500 text-white" : "bg-white/5 text-slate-400 hover:text-white"
-                }`}>
-                {t}
+    <div className={`w-full transition-all ${result ? "grid lg:grid-cols-2 gap-8 items-start" : "flex flex-col items-center"}`}>
+      <div className={`space-y-4 w-full ${!result ? "max-w-4xl" : ""}`}>
+        <div className="glass-card p-6 md:p-10 space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-white/10">
+            <h2 className="text-2xl font-bold text-white">Problema de Asignación</h2>
+            <div className="flex gap-2">
+              {(["MIN", "MAX"] as const).map((t) => (
+                <button key={t} onClick={() => setType(t)}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                    type === t ? "bg-orange-500 text-white shadow-md shadow-orange-500/20" : "bg-white/5 text-slate-400 hover:text-white"
+                  }`}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex gap-2 flex-wrap">
+            {[["+ Fila", addRow], ["− Fila", removeRow], ["+ Col", addCol], ["− Col", removeCol]].map(([label, fn]) => (
+              <button key={label as string} onClick={fn as () => void}
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 transition-all">
+                {label as string}
               </button>
             ))}
           </div>
-        </div>
 
-        <div className="flex gap-2 flex-wrap">
-          {[["+ Fila", addRow], ["− Fila", removeRow], ["+ Col", addCol], ["− Col", removeCol]].map(([label, fn]) => (
-            <button key={label as string} onClick={fn as () => void}
-              className="px-3 py-1 rounded text-xs bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 transition-all">
-              {label as string}
-            </button>
-          ))}
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="simplex-table text-sm">
-            <thead>
-              <tr>
-                <th className="py-2.5">Agente\Tarea</th>
-                {Array.from({ length: m }, (_, j) => <th key={j} className="py-2.5">T{j + 1}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {matrix.map((row, i) => (
-                <tr key={i}>
-                  <td className="basic-var-col font-bold">A{i + 1}</td>
-                  {row.map((val, j) => (
-                    <td key={j} className="py-2">
-                      <input type="number" value={val}
-                        onChange={(e) => {
-                          const m2 = matrix.map((r) => [...r]);
-                          m2[i][j] = Number(e.target.value);
-                          setMatrix(m2);
-                        }}
-                        className="number-input w-16 h-10 text-center font-bold text-sm"
-                      />
-                    </td>
-                  ))}
+          <div className="overflow-x-auto">
+            <table className="simplex-table text-base w-full my-3 text-center">
+              <thead>
+                <tr>
+                  <th className="py-3 px-3">Agente\Tarea</th>
+                  {Array.from({ length: m }, (_, j) => <th key={j} className="py-3 px-3">T{j + 1}</th>)}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {matrix.map((row, i) => (
+                  <tr key={i}>
+                    <td className="basic-var-col font-bold">A{i + 1}</td>
+                    {row.map((val, j) => (
+                      <td key={j} className="py-3 px-2">
+                        <input type="number" value={val}
+                          onChange={(e) => {
+                            const m2 = matrix.map((r) => [...r]);
+                            m2[i][j] = Number(e.target.value);
+                            setMatrix(m2);
+                          }}
+                          className="number-input w-24 h-12 text-center font-bold text-base mx-auto block"
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        <button onClick={handleSolve} disabled={loading} className="btn-primary w-full py-3.5 text-base font-bold">
-          {loading ? "Resolviendo..." : `⚡ Resolver Asignación (${type})`}
-        </button>
-        {error && <div className="alert-error text-sm">{error}</div>}
-        <CodeViewer algo="assignment" />
+          <button onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide">
+            {loading ? "Resolviendo..." : `⚡ Resolver Asignación (${type})`}
+          </button>
+          {error && <div className="alert-error text-sm">{error}</div>}
+          <CodeViewer algo="assignment" />
+        </div>
       </div>
 
-      <div>
-        {result && (
-          <div className="glass-card p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-white">Asignación Óptima</h3>
-              <div className="alert-success py-1 px-3 text-sm">
+      {result && (
+        <div className="space-y-4 w-full">
+          <div className="glass-card p-6 md:p-8 space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <h3 className="text-xl font-bold text-white">Asignación Óptima</h3>
+              <div className="alert-success py-1.5 px-4 text-base font-semibold">
                 {type === "MIN" ? "Costo" : "Beneficio"} Total:{" "}
-                <strong className="text-teal-300">{result.total_cost}</strong>
+                <strong className="text-teal-300 text-lg">{result.total_cost}</strong>
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {result.assignments?.map((a: any, i: number) => (
-                <div key={i} className="flex justify-between items-center px-3 py-2 rounded-lg bg-white/4 border border-white/8">
-                  <span className="text-white text-sm font-medium">{a.agent} → {a.task}</span>
-                  <span className="text-teal-300 font-mono text-sm">{a.cost}</span>
+                <div key={i} className="flex justify-between items-center px-4 py-3 rounded-xl bg-white/5 border border-white/10">
+                  <span className="text-white text-base font-medium">{a.agent} → {a.task}</span>
+                  <span className="text-teal-300 font-mono text-base font-bold">{a.cost}</span>
                 </div>
               ))}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1135,146 +1143,152 @@ function KuhnMunkresSection() {
   const currentStep = steps[stepIdx];
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      <div className="glass-card p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-white">Kuhn-Munkres Paso a Paso</h2>
-          <div className="flex gap-2">
-            {(["MIN", "MAX"] as const).map((t) => (
-              <button key={t} onClick={() => setType(t)}
-                className={`px-3 py-1 rounded text-xs font-bold transition-all ${
-                  type === t ? "bg-orange-500 text-white" : "bg-white/5 text-slate-400 hover:text-white"
-                }`}>
-                {t}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="simplex-table text-sm">
-            <thead>
-              <tr>
-                <th className="py-2.5">Agente\Tarea</th>
-                {Array.from({ length: m }, (_, j) => <th key={j} className="py-2.5">T{j + 1}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {matrix.map((row, i) => (
-                <tr key={i}>
-                  <td className="basic-var-col font-bold">A{i + 1}</td>
-                  {row.map((val, j) => (
-                    <td key={j} className="py-2">
-                      <input type="number" value={val}
-                        onChange={(e) => {
-                          const m2 = matrix.map((r) => [...r]);
-                          m2[i][j] = Number(e.target.value);
-                          setMatrix(m2);
-                        }}
-                        className="number-input w-16 h-10 text-center font-bold text-sm"
-                      />
-                    </td>
-                  ))}
-                </tr>
+    <div className={`w-full transition-all ${result ? "grid lg:grid-cols-2 gap-8 items-start" : "flex flex-col items-center"}`}>
+      <div className={`space-y-4 w-full ${!result ? "max-w-4xl" : ""}`}>
+        <div className="glass-card p-6 md:p-10 space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-white/10">
+            <h2 className="text-2xl font-bold text-white">Kuhn-Munkres Paso a Paso</h2>
+            <div className="flex gap-2">
+              {(["MIN", "MAX"] as const).map((t) => (
+                <button key={t} onClick={() => setType(t)}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                    type === t ? "bg-orange-500 text-white shadow-md shadow-orange-500/20" : "bg-white/5 text-slate-400 hover:text-white"
+                  }`}>
+                  {t}
+                </button>
               ))}
-            </tbody>
-          </table>
-        </div>
-
-        <button onClick={handleSolve} disabled={loading} className="btn-primary w-full py-3.5 text-base font-bold">
-          {loading ? "Calculando..." : "⚡ Ejecutar Kuhn-Munkres"}
-        </button>
-        {error && <div className="alert-error text-sm">{error}</div>}
-
-        {result && (
-          <div className="alert-success py-2 px-3 text-sm flex justify-between">
-            <span>Costo Total Óptimo:</span>
-            <strong className="text-teal-300">{result.total_cost}</strong>
-          </div>
-        )}
-        <CodeViewer algo="kuhn-munkres" />
-      </div>
-
-      <div className="space-y-4">
-        {steps.length > 0 && (
-          <div className="glass-card p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-white">
-                {currentStep?.step ?? "Resultado"}
-              </h3>
-              <span className="text-xs text-slate-500">{stepIdx + 1} / {steps.length}</span>
             </div>
+          </div>
 
-            {currentStep?.description && (
-              <p className="text-xs text-slate-400 bg-white/3 rounded-lg p-3 border border-white/8">
-                {currentStep.description}
-              </p>
-            )}
-
-            {currentStep?.delta !== undefined && (
-              <div className="text-amber-400 text-sm font-mono">
-                Δ = {currentStep.delta?.toFixed(4)}
-              </div>
-            )}
-
-            {currentStep?.matrix && (
-              <div className="overflow-x-auto">
-                <table className="simplex-table text-xs">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      {currentStep.col_names?.map((c: string) => <th key={c}>{c}</th>)}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentStep.matrix.map((row: number[], i: number) => (
-                      <tr key={i}>
-                        <td className="basic-var-col">{currentStep.row_names?.[i] ?? `A${i+1}`}</td>
-                        {row.map((val: number, j: number) => {
-                          const isAssigned = currentStep.assignments?.some(
-                            (a: any) => a.row === i && a.col === j
-                          );
-                          const isZero = Math.abs(val) < 1e-9;
-                          return (
-                            <td key={j} className={
-                              isAssigned
-                                ? "bg-teal-500/20 text-teal-300 font-bold"
-                                : isZero
-                                ? "text-orange-400 font-semibold"
-                                : ""
-                            }>
-                              {Math.abs(val) < 1e-9 ? "0" : val.toFixed(2)}
-                            </td>
-                          );
-                        })}
-                      </tr>
+          <div className="overflow-x-auto">
+            <table className="simplex-table text-base w-full my-3 text-center">
+              <thead>
+                <tr>
+                  <th className="py-3 px-3">Agente\Tarea</th>
+                  {Array.from({ length: m }, (_, j) => <th key={j} className="py-3 px-3">T{j + 1}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {matrix.map((row, i) => (
+                  <tr key={i}>
+                    <td className="basic-var-col font-bold">A{i + 1}</td>
+                    {row.map((val, j) => (
+                      <td key={j} className="py-3 px-2">
+                        <input type="number" value={val}
+                          onChange={(e) => {
+                            const m2 = matrix.map((r) => [...r]);
+                            m2[i][j] = Number(e.target.value);
+                            setMatrix(m2);
+                          }}
+                          className="number-input w-24 h-12 text-center font-bold text-base mx-auto block"
+                        />
+                      </td>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {currentStep?.is_final && (
-              <div className="alert-success text-sm">
-                ✅ Asignación óptima encontrada
-              </div>
-            )}
-
-            <div className="flex gap-2 justify-between">
-              <button disabled={stepIdx === 0}
-                onClick={() => setStepIdx(Math.max(0, stepIdx - 1))}
-                className="btn-primary px-4 py-2 text-sm disabled:opacity-40">
-                ◀ Anterior
-              </button>
-              <button disabled={stepIdx === steps.length - 1}
-                onClick={() => setStepIdx(Math.min(steps.length - 1, stepIdx + 1))}
-                className="btn-primary px-4 py-2 text-sm disabled:opacity-40">
-                Siguiente ▶
-              </button>
-            </div>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
+
+          <button onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide">
+            {loading ? "Calculando..." : "⚡ Ejecutar Kuhn-Munkres"}
+          </button>
+          {error && <div className="alert-error text-sm">{error}</div>}
+
+          {result && (
+            <div className="alert-success py-2.5 px-4 text-base flex justify-between font-semibold">
+              <span>Costo Total Óptimo:</span>
+              <strong className="text-teal-300 text-lg">{result.total_cost}</strong>
+            </div>
+          )}
+          <CodeViewer algo="kuhn-munkres" />
+        </div>
       </div>
+
+      {result && (
+        <div className="space-y-4 w-full">
+          {steps.length > 0 && (
+            <div className="glass-card p-6 md:p-8 space-y-5">
+              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                <h3 className="text-lg font-bold text-white">
+                  {currentStep?.step ?? "Resultado"}
+                </h3>
+                <span className="text-xs text-slate-400 font-mono bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
+                  {stepIdx + 1} / {steps.length}
+                </span>
+              </div>
+
+              {currentStep?.description && (
+                <p className="text-xs text-slate-300 bg-white/5 rounded-xl p-3.5 border border-white/10 leading-relaxed">
+                  {currentStep.description}
+                </p>
+              )}
+
+              {currentStep?.delta !== undefined && (
+                <div className="text-amber-400 text-sm font-mono font-bold bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20 inline-block">
+                  Δ = {currentStep.delta?.toFixed(4)}
+                </div>
+              )}
+
+              {currentStep?.matrix && (
+                <div className="overflow-x-auto">
+                  <table className="simplex-table text-sm w-full text-center">
+                    <thead>
+                      <tr>
+                        <th className="py-2.5"></th>
+                        {currentStep.col_names?.map((c: string) => <th key={c} className="py-2.5">{c}</th>)}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentStep.matrix.map((row: number[], i: number) => (
+                        <tr key={i}>
+                          <td className="basic-var-col font-bold">{currentStep.row_names?.[i] ?? `A${i+1}`}</td>
+                          {row.map((val: number, j: number) => {
+                            const isAssigned = currentStep.assignments?.some(
+                              (a: any) => a.row === i && a.col === j
+                            );
+                            const isZero = Math.abs(val) < 1e-9;
+                            return (
+                              <td key={j} className={`py-2.5 ${
+                                isAssigned
+                                  ? "bg-teal-500/25 text-teal-300 font-bold"
+                                  : isZero
+                                  ? "text-orange-400 font-semibold"
+                                  : ""
+                              }`}>
+                                {Math.abs(val) < 1e-9 ? "0" : val.toFixed(2)}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {currentStep?.is_final && (
+                <div className="alert-success text-sm font-semibold">
+                  ✅ Asignación óptima encontrada
+                </div>
+              )}
+
+              <div className="flex gap-3 justify-between pt-2">
+                <button disabled={stepIdx === 0}
+                  onClick={() => setStepIdx(Math.max(0, stepIdx - 1))}
+                  className="btn-primary px-5 py-2.5 text-sm disabled:opacity-40">
+                  ◀ Anterior
+                </button>
+                <button disabled={stepIdx === steps.length - 1}
+                  onClick={() => setStepIdx(Math.min(steps.length - 1, stepIdx + 1))}
+                  className="btn-primary px-5 py-2.5 text-sm disabled:opacity-40">
+                  Siguiente ▶
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -1314,107 +1328,107 @@ function MaxFlowSection() {
   const removeEdge = (i: number) => setEdges(edges.filter((_, idx) => idx !== i));
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      <div className="glass-card p-5 space-y-4">
-        <h2 className="text-base font-semibold text-white">Flujo Máximo (Edmonds-Karp)</h2>
+    <div className={`w-full transition-all ${result ? "grid lg:grid-cols-2 gap-8 items-start" : "flex flex-col items-center"}`}>
+      <div className={`space-y-4 w-full ${!result ? "max-w-4xl" : ""}`}>
+        <div className="glass-card p-6 md:p-10 space-y-6">
+          <h2 className="text-2xl font-bold text-white">Flujo Máximo (Edmonds-Karp)</h2>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs text-slate-400 mb-1">Fuente (s)</label>
-            <input value={source} onChange={(e) => setSource(e.target.value)} className="number-input" />
-          </div>
-          <div>
-            <label className="block text-xs text-slate-400 mb-1">Sumidero (t)</label>
-            <input value={sink} onChange={(e) => setSink(e.target.value)} className="number-input" />
-          </div>
-        </div>
-
-        <div className="space-y-2 max-h-64 overflow-y-auto">
-          <div className="grid grid-cols-4 gap-1 text-xs text-slate-500 font-semibold px-1">
-            <span>Origen</span><span>Destino</span><span>Capacidad</span><span></span>
-          </div>
-          {edges.map((edge, i) => (
-            <div key={i} className="grid grid-cols-4 gap-1">
-              <input value={edge.source}
-                onChange={(e) => { const a = [...edges]; a[i] = {...a[i], source: e.target.value}; setEdges(a); }}
-                className="number-input text-center text-xs" />
-              <input value={edge.target}
-                onChange={(e) => { const a = [...edges]; a[i] = {...a[i], target: e.target.value}; setEdges(a); }}
-                className="number-input text-center text-xs" />
-              <input type="number" value={edge.capacity}
-                onChange={(e) => { const a = [...edges]; a[i] = {...a[i], capacity: Number(e.target.value)}; setEdges(a); }}
-                className="number-input text-center text-xs" />
-              <button onClick={() => removeEdge(i)} className="text-red-400 hover:text-red-300 text-xs">✕</button>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Nodo Fuente (s)</label>
+              <input value={source} onChange={(e) => setSource(e.target.value)} className="number-input w-full h-12 text-center font-bold text-lg" />
             </div>
-          ))}
-          <button onClick={addEdge} className="text-xs text-teal-400 hover:text-teal-300 mt-1">
-            + Agregar arista
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Nodo Sumidero (t)</label>
+              <input value={sink} onChange={(e) => setSink(e.target.value)} className="number-input w-full h-12 text-center font-bold text-lg" />
+            </div>
+          </div>
+
+          <div className="space-y-2 max-h-80 overflow-y-auto">
+            <div className="grid grid-cols-4 gap-2 text-xs text-slate-400 font-semibold px-1">
+              <span>Origen</span><span>Destino</span><span>Capacidad</span><span></span>
+            </div>
+            {edges.map((edge, i) => (
+              <div key={i} className="grid grid-cols-4 gap-2 items-center">
+                <input value={edge.source}
+                  onChange={(e) => { const a = [...edges]; a[i] = {...a[i], source: e.target.value}; setEdges(a); }}
+                  className="number-input text-center text-base font-bold h-11" />
+                <input value={edge.target}
+                  onChange={(e) => { const a = [...edges]; a[i] = {...a[i], target: e.target.value}; setEdges(a); }}
+                  className="number-input text-center text-base font-bold h-11" />
+                <input type="number" value={edge.capacity}
+                  onChange={(e) => { const a = [...edges]; a[i] = {...a[i], capacity: Number(e.target.value)}; setEdges(a); }}
+                  className="number-input text-center text-base font-bold h-11" />
+                <button onClick={() => removeEdge(i)} className="text-red-400 hover:text-red-300 text-sm font-bold">✕</button>
+              </div>
+            ))}
+            <button onClick={addEdge} className="text-xs text-teal-400 hover:text-teal-300 font-semibold mt-2 inline-block">
+              + Agregar arista
+            </button>
+          </div>
+
+          <button onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide">
+            {loading ? "Calculando..." : "⚡ Calcular Flujo Máximo"}
           </button>
+          {error && <div className="alert-error text-sm">{error}</div>}
+          <CodeViewer algo="max-flow" />
         </div>
-
-        <button onClick={handleSolve} disabled={loading} className="btn-primary w-full py-3.5 text-base font-bold">
-          {loading ? "Calculando..." : "⚡ Calcular Flujo Máximo"}
-        </button>
-        {error && <div className="alert-error text-sm">{error}</div>}
-        <CodeViewer algo="max-flow" />
       </div>
 
-      <div className="space-y-4">
-        {result && (
-          <>
-            <div className="glass-card p-5 space-y-3">
-              <div className="flex justify-between items-center">
-                <h3 className="font-semibold text-white">Resultado</h3>
-                <div className="alert-success px-3 py-1 text-sm">
-                  Flujo Máximo: <strong className="text-teal-300">{result.max_flow}</strong>
-                </div>
-              </div>
-
-              <h4 className="text-xs font-semibold text-slate-400 uppercase">Flujo por Arista</h4>
-              <div className="overflow-x-auto">
-                <table className="simplex-table text-xs">
-                  <thead>
-                    <tr><th>Arista</th><th>Flujo</th><th>Capacidad</th><th>%</th></tr>
-                  </thead>
-                  <tbody>
-                    {result.flow_on_edges?.map((e: any, i: number) => (
-                      <tr key={i} className={e.flow > 0 ? "bg-teal-500/5" : ""}>
-                        <td className="font-mono">{e.source} → {e.target}</td>
-                        <td className="text-teal-300 font-bold">{e.flow}</td>
-                        <td>{e.capacity}</td>
-                        <td className="text-slate-400">{((e.flow / e.capacity) * 100).toFixed(0)}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+      {result && (
+        <div className="space-y-4 w-full">
+          <div className="glass-card p-6 md:p-8 space-y-4">
+            <div className="flex justify-between items-center pb-3 border-b border-white/10">
+              <h3 className="text-xl font-bold text-white">Resultado</h3>
+              <div className="alert-success px-4 py-1.5 text-base font-semibold">
+                Flujo Máximo: <strong className="text-teal-300 text-lg">{result.max_flow}</strong>
               </div>
             </div>
 
-            {result.flow_on_edges && (
-              <FlowNetworkDiagram
-                edges={result.flow_on_edges}
-                source={source}
-                sink={sink}
-              />
-            )}
+            <h4 className="text-xs font-semibold text-slate-400 uppercase">Flujo por Arista</h4>
+            <div className="overflow-x-auto">
+              <table className="simplex-table text-sm w-full text-center">
+                <thead>
+                  <tr><th>Arista</th><th>Flujo</th><th>Capacidad</th><th>%</th></tr>
+                </thead>
+                <tbody>
+                  {result.flow_on_edges?.map((e: any, i: number) => (
+                    <tr key={i} className={e.flow > 0 ? "bg-teal-500/5" : ""}>
+                      <td className="font-mono">{e.source} → {e.target}</td>
+                      <td className="text-teal-300 font-bold">{e.flow}</td>
+                      <td>{e.capacity}</td>
+                      <td className="text-slate-400">{((e.flow / e.capacity) * 100).toFixed(0)}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-            {result.augmenting_paths?.length > 0 && (
-              <div className="glass-card p-5 space-y-3">
-                <h4 className="text-xs font-semibold text-slate-400 uppercase">Rutas de Aumento</h4>
-                {result.augmenting_paths.map((p: any, i: number) => (
-                  <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/3 border border-white/8">
-                    <span className="text-xs text-slate-500">#{i + 1}</span>
-                    <span className="text-sm font-mono text-white">{p.path?.join(" → ")}</span>
-                    <span className="ml-auto text-orange-400 text-xs font-bold">
-                      Δ = {p.bottleneck}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </div>
+          {result.flow_on_edges && (
+            <FlowNetworkDiagram
+              edges={result.flow_on_edges}
+              source={source}
+              sink={sink}
+            />
+          )}
+
+          {result.augmenting_paths?.length > 0 && (
+            <div className="glass-card p-6 md:p-8 space-y-3">
+              <h4 className="text-xs font-semibold text-slate-400 uppercase">Rutas de Aumento</h4>
+              {result.augmenting_paths.map((p: any, i: number) => (
+                <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10">
+                  <span className="text-xs text-slate-500 font-mono">#{i + 1}</span>
+                  <span className="text-base font-mono text-white">{p.path?.join(" → ")}</span>
+                  <span className="ml-auto text-orange-400 text-xs font-bold bg-orange-500/10 px-2.5 py-1 rounded-lg border border-orange-500/20">
+                    Cuello: {p.bottleneck}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -1559,87 +1573,91 @@ function MinCostFlowSection() {
   };
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      <div className="glass-card p-5 space-y-4">
-        <h2 className="text-base font-semibold text-white">Flujo a Costo Mínimo</h2>
+    <div className={`w-full transition-all ${result ? "grid lg:grid-cols-2 gap-8 items-start" : "flex flex-col items-center"}`}>
+      <div className={`space-y-4 w-full ${!result ? "max-w-4xl" : ""}`}>
+        <div className="glass-card p-6 md:p-10 space-y-6">
+          <h2 className="text-2xl font-bold text-white mb-2">Flujo a Costo Mínimo</h2>
 
-        {/* Nodos */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-xs font-semibold text-slate-400 uppercase">Nodos (oferta/demanda b_i)</h3>
-            <div className={`text-xs font-mono ${isBalanced ? "text-teal-400" : "text-red-400"}`}>
-              Σb_i = {totalBalance.toFixed(1)} {isBalanced ? "✓" : "⚠"}
+          {/* Nodos */}
+          <div>
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Nodos (oferta/demanda b_i)</h3>
+              <div className={`text-xs font-mono font-bold px-2.5 py-1 rounded-lg ${
+                isBalanced ? "bg-teal-500/10 text-teal-400 border border-teal-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"
+              }`}>
+                Σb_i = {totalBalance.toFixed(1)} {isBalanced ? "✓ Balanceado" : "⚠ Desbalanceado"}
+              </div>
+            </div>
+            <div className="space-y-2">
+              {nodes.map((node, i) => (
+                <div key={i} className="flex gap-2 items-center">
+                  <input value={node.id}
+                    onChange={(e) => { const a = [...nodes]; a[i] = {...a[i], id: e.target.value}; setNodes(a); }}
+                    className="number-input w-20 text-center text-sm font-bold h-11" placeholder="ID" />
+                  <input type="number" value={node.demand}
+                    onChange={(e) => { const a = [...nodes]; a[i] = {...a[i], demand: Number(e.target.value)}; setNodes(a); }}
+                    className="number-input flex-1 text-sm font-semibold h-11"
+                    placeholder="b_i (+oferta / -demanda / 0=transb.)" />
+                  <button onClick={() => nodes.length > 2 && setNodes(nodes.filter((_, j) => j !== i))}
+                    className="text-red-400 text-sm hover:text-red-300 font-bold px-2">✕</button>
+                </div>
+              ))}
+              <button onClick={() => setNodes([...nodes, { id: `N${nodes.length + 1}`, demand: 0 }])}
+                className="text-xs text-teal-400 hover:text-teal-300 font-semibold mt-1 inline-block">+ Agregar nodo</button>
             </div>
           </div>
-          <div className="space-y-1">
-            {nodes.map((node, i) => (
-              <div key={i} className="flex gap-2 items-center">
-                <input value={node.id}
-                  onChange={(e) => { const a = [...nodes]; a[i] = {...a[i], id: e.target.value}; setNodes(a); }}
-                  className="number-input w-16 text-center text-xs" placeholder="ID" />
-                <input type="number" value={node.demand}
-                  onChange={(e) => { const a = [...nodes]; a[i] = {...a[i], demand: Number(e.target.value)}; setNodes(a); }}
-                  className="number-input flex-1 text-xs"
-                  placeholder="b_i (+oferta / -demanda / 0=transb.)" />
-                <button onClick={() => nodes.length > 2 && setNodes(nodes.filter((_, j) => j !== i))}
-                  className="text-red-400 text-xs hover:text-red-300">✕</button>
-              </div>
-            ))}
-            <button onClick={() => setNodes([...nodes, { id: `N${nodes.length + 1}`, demand: 0 }])}
-              className="text-xs text-teal-400 hover:text-teal-300">+ Agregar nodo</button>
-          </div>
-        </div>
 
-        {/* Aristas */}
-        <div>
-          <h3 className="text-xs font-semibold text-slate-400 uppercase mb-2">Aristas</h3>
-          <div className="space-y-1">
-            <div className="grid grid-cols-5 gap-1 text-xs text-slate-500 px-1">
-              <span>Origen</span><span>Destino</span><span>Cap.</span><span>Costo</span><span></span>
+          {/* Aristas */}
+          <div>
+            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Aristas</h3>
+            <div className="space-y-2 max-h-72 overflow-y-auto">
+              <div className="grid grid-cols-5 gap-2 text-xs text-slate-400 font-semibold px-1">
+                <span>Origen</span><span>Destino</span><span>Cap.</span><span>Costo</span><span></span>
+              </div>
+              {edges.map((edge, i) => (
+                <div key={i} className="grid grid-cols-5 gap-2 items-center">
+                  <input value={edge.source}
+                    onChange={(e) => { const a = [...edges]; a[i] = {...a[i], source: e.target.value}; setEdges(a); }}
+                    className="number-input text-center text-sm font-bold h-10" />
+                  <input value={edge.target}
+                    onChange={(e) => { const a = [...edges]; a[i] = {...a[i], target: e.target.value}; setEdges(a); }}
+                    className="number-input text-center text-sm font-bold h-10" />
+                  <input type="number" value={edge.capacity}
+                    onChange={(e) => { const a = [...edges]; a[i] = {...a[i], capacity: Number(e.target.value)}; setEdges(a); }}
+                    className="number-input text-center text-sm font-bold h-10" />
+                  <input type="number" value={edge.cost}
+                    onChange={(e) => { const a = [...edges]; a[i] = {...a[i], cost: Number(e.target.value)}; setEdges(a); }}
+                    className="number-input text-center text-sm font-bold h-10" />
+                  <button onClick={() => setEdges(edges.filter((_, j) => j !== i))}
+                    className="text-red-400 text-sm hover:text-red-300 font-bold">✕</button>
+                </div>
+              ))}
+              <button
+                onClick={() => setEdges([...edges, { source: nodes[0]?.id ?? "s", target: nodes[nodes.length-1]?.id ?? "t", capacity: 10, cost: 1 }])}
+                className="text-xs text-teal-400 hover:text-teal-300 font-semibold mt-1 inline-block">+ Agregar arista</button>
             </div>
-            {edges.map((edge, i) => (
-              <div key={i} className="grid grid-cols-5 gap-1">
-                <input value={edge.source}
-                  onChange={(e) => { const a = [...edges]; a[i] = {...a[i], source: e.target.value}; setEdges(a); }}
-                  className="number-input text-center text-xs" />
-                <input value={edge.target}
-                  onChange={(e) => { const a = [...edges]; a[i] = {...a[i], target: e.target.value}; setEdges(a); }}
-                  className="number-input text-center text-xs" />
-                <input type="number" value={edge.capacity}
-                  onChange={(e) => { const a = [...edges]; a[i] = {...a[i], capacity: Number(e.target.value)}; setEdges(a); }}
-                  className="number-input text-center text-xs" />
-                <input type="number" value={edge.cost}
-                  onChange={(e) => { const a = [...edges]; a[i] = {...a[i], cost: Number(e.target.value)}; setEdges(a); }}
-                  className="number-input text-center text-xs" />
-                <button onClick={() => setEdges(edges.filter((_, j) => j !== i))}
-                  className="text-red-400 text-xs hover:text-red-300">✕</button>
-              </div>
-            ))}
-            <button
-              onClick={() => setEdges([...edges, { source: nodes[0]?.id ?? "s", target: nodes[nodes.length-1]?.id ?? "t", capacity: 10, cost: 1 }])}
-              className="text-xs text-teal-400 hover:text-teal-300">+ Agregar arista</button>
           </div>
-        </div>
 
-        <button onClick={handleSolve} disabled={loading || !isBalanced} className="btn-primary w-full py-3.5 text-base font-bold disabled:opacity-50">
-          {loading ? "Calculando..." : isBalanced ? "⚡ Calcular Flujo a Costo Mínimo" : "⚠ Red desbalanceada"}
-        </button>
-        {error && <div className="alert-error text-sm">{error}</div>}
-        <CodeViewer algo="min-cost-flow" />
+          <button onClick={handleSolve} disabled={loading || !isBalanced} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide disabled:opacity-50">
+            {loading ? "Calculando..." : isBalanced ? "⚡ Calcular Flujo a Costo Mínimo" : "⚠ Red desbalanceada"}
+          </button>
+          {error && <div className="alert-error text-sm">{error}</div>}
+          <CodeViewer algo="min-cost-flow" />
+        </div>
       </div>
 
-      <div>
-        {result && (
-          <div className="glass-card p-5 space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-white">Resultado Óptimo</h3>
-              <div className="alert-success px-3 py-1 text-sm">
+      {result && (
+        <div className="space-y-4 w-full">
+          <div className="glass-card p-6 md:p-8 space-y-5">
+            <div className="flex justify-between items-center pb-3 border-b border-white/10">
+              <h3 className="text-xl font-bold text-white">Resultado Óptimo</h3>
+              <div className="alert-success px-4 py-1.5 text-base font-semibold">
                 Costo Total Mínimo:{" "}
-                <strong className="text-teal-300">{result.total_cost}</strong>
+                <strong className="text-teal-300 text-lg">{result.total_cost}</strong>
               </div>
             </div>
             <div className="overflow-x-auto">
-              <table className="simplex-table text-xs">
+              <table className="simplex-table text-sm w-full text-center">
                 <thead>
                   <tr><th>Arco</th><th>Flujo</th><th>Cap.</th><th>Costo/u</th><th>Costo Arco</th></tr>
                 </thead>
@@ -1647,10 +1665,10 @@ function MinCostFlowSection() {
                   {result.flow_on_edges?.map((e: any, i: number) => (
                     <tr key={i} className={e.flow > 0 ? "bg-teal-500/5" : "opacity-50"}>
                       <td className="font-mono">{e.source} → {e.target}</td>
-                      <td className={e.flow > 0 ? "text-teal-300 font-bold" : "text-slate-600"}>{e.flow}</td>
+                      <td className={e.flow > 0 ? "text-teal-300 font-bold text-base" : "text-slate-600"}>{e.flow}</td>
                       <td>{e.capacity}</td>
                       <td className="text-slate-400">${e.cost_per_unit}</td>
-                      <td className={e.arc_cost > 0 ? "text-orange-400 font-semibold" : "text-slate-600"}>
+                      <td className={e.arc_cost > 0 ? "text-orange-400 font-bold" : "text-slate-600"}>
                         ${e.arc_cost}
                       </td>
                     </tr>
@@ -1659,8 +1677,8 @@ function MinCostFlowSection() {
               </table>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
