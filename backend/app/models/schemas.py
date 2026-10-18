@@ -24,6 +24,7 @@ class SimplexTableau(BaseModel):
     basic_variables: List[str]
     variable_names: List[str]
     cj: List[float]
+    cb: Optional[List[float]] = None
     zj: List[float]
     cj_zj: List[float]
     z_value: float

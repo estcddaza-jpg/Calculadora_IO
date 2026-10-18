@@ -62,6 +62,7 @@ export default function NetworksPage() {
           {sections.map((s) => (
             <button
               key={s.id}
+              id={`tab-network-${s.id}`}
               onClick={() => setSection(s.id)}
               className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                 section === s.id
@@ -117,6 +118,27 @@ function TransportSection() {
     }
   };
 
+  const addOrigin = () => {
+    setSupply([...supply, 20]);
+    setCosts([...costs, new Array(demand.length).fill(0)]);
+  };
+  const removeOrigin = () => {
+    if (supply.length > 2) {
+      setSupply(supply.slice(0, -1));
+      setCosts(costs.slice(0, -1));
+    }
+  };
+  const addDestination = () => {
+    setDemand([...demand, 20]);
+    setCosts(costs.map((row) => [...row, 0]));
+  };
+  const removeDestination = () => {
+    if (demand.length > 2) {
+      setDemand(demand.slice(0, -1));
+      setCosts(costs.map((row) => row.slice(0, -1)));
+    }
+  };
+
   const m = supply.length;
   const n = demand.length;
 
@@ -125,6 +147,15 @@ function TransportSection() {
       <div className={`space-y-4 w-full ${!result ? "max-w-4xl" : ""}`}>
         <div className="glass-card p-6 md:p-10 space-y-6">
           <h2 className="text-2xl font-bold text-white mb-2">Problema de Transporte</h2>
+
+          <div className="flex gap-2 flex-wrap mb-2">
+            {[["add-orig", "+ Origen", addOrigin], ["del-orig", "− Origen", removeOrigin], ["add-dest", "+ Destino", addDestination], ["del-dest", "− Destino", removeDestination]].map(([idKey, label, fn]) => (
+              <button key={label as string} onClick={fn as () => void} id={`transport-btn-${idKey}`}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 transition-all">
+                {label as string}
+              </button>
+            ))}
+          </div>
 
           <div className="mb-4">
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Método de Solución</label>
@@ -285,6 +316,19 @@ function CPMSection() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const addActivity = () => {
+    const nextLetter = String.fromCharCode(65 + activities.length);
+    setActivities([
+      ...activities,
+      { id: nextLetter, name: `Actividad ${nextLetter}`, duration: 1, predecessors: [] },
+    ]);
+  };
+  const removeActivity = (idx: number) => {
+    if (activities.length > 1) {
+      setActivities(activities.filter((_, i) => i !== idx));
+    }
+  };
+
   const handleSolve = async () => {
     setLoading(true);
     setError(null);
@@ -360,8 +404,20 @@ function CPMSection() {
                   placeholder="Pred. (A,B)"
                   id={`act-pred-${i}`}
                 />
+                <button
+                  onClick={() => removeActivity(i)}
+                  className="text-red-400 hover:text-red-300 font-bold px-2 text-sm"
+                  id={`cpm-del-${i}`}
+                >✕</button>
               </div>
             ))}
+            <button
+              onClick={addActivity}
+              className="text-xs text-teal-400 hover:text-teal-300 font-semibold mt-1 inline-block"
+              id="cpm-add-btn"
+            >
+              + Agregar actividad
+            </button>
           </div>
           <button
             onClick={handleSolve}
@@ -445,6 +501,19 @@ function PERTSection() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const addActivity = () => {
+    const nextLetter = String.fromCharCode(65 + activities.length);
+    setActivities([
+      ...activities,
+      { id: nextLetter, name: `Actividad ${nextLetter}`, optimistic: 1, most_likely: 2, pessimistic: 3, predecessors: [] },
+    ]);
+  };
+  const removeActivity = (idx: number) => {
+    if (activities.length > 1) {
+      setActivities(activities.filter((_, i) => i !== idx));
+    }
+  };
+
   const handleSolve = async () => {
     setLoading(true);
     setError(null);
@@ -470,15 +539,16 @@ function PERTSection() {
             <KaTeXDisplay latex="t_e = \\frac{t_o + 4t_m + t_p}{6}, \\ \\sigma^2 = \\left(\\frac{t_p - t_o}{6}\\right)^2" />
           </div>
           <div className="space-y-2.5">
-            <div className="grid grid-cols-6 gap-2 text-slate-400 font-semibold px-1 text-xs uppercase tracking-wider">
+            <div className="grid grid-cols-7 gap-2 text-slate-400 font-semibold px-1 text-xs uppercase tracking-wider">
               <span>ID</span>
               <span className="col-span-2">Nombre</span>
               <span className="text-center">to</span>
               <span className="text-center">tm</span>
               <span className="text-center">tp</span>
+              <span></span>
             </div>
             {activities.map((act, i) => (
-              <div key={i} className="grid grid-cols-6 gap-2 items-center">
+              <div key={i} className="grid grid-cols-7 gap-2 items-center">
                 <input
                   value={act.id}
                   onChange={(e) => {
@@ -513,8 +583,20 @@ function PERTSection() {
                     id={`pert-${field}-${i}`}
                   />
                 ))}
+                <button
+                  onClick={() => removeActivity(i)}
+                  className="text-red-400 hover:text-red-300 font-bold px-2 text-sm"
+                  id={`pert-del-${i}`}
+                >✕</button>
               </div>
             ))}
+            <button
+              onClick={addActivity}
+              className="text-xs text-teal-400 hover:text-teal-300 font-semibold mt-1 inline-block"
+              id="pert-add-btn"
+            >
+              + Agregar actividad
+            </button>
           </div>
           <div className="flex gap-3 items-center pt-2">
             <label className="text-sm font-semibold text-slate-300 whitespace-nowrap">
@@ -1077,7 +1159,7 @@ function AssignmentSection() {
             </table>
           </div>
 
-          <button onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide">
+          <button id="assignment-solve-btn" onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide">
             {loading ? "Resolviendo..." : `⚡ Resolver Asignación (${type})`}
           </button>
           {error && <div className="alert-error text-sm">{error}</div>}
@@ -1189,7 +1271,7 @@ function KuhnMunkresSection() {
             </table>
           </div>
 
-          <button onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide">
+          <button id="km-solve-btn" onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide">
             {loading ? "Calculando..." : "⚡ Ejecutar Kuhn-Munkres"}
           </button>
           {error && <div className="alert-error text-sm">{error}</div>}
@@ -1273,12 +1355,12 @@ function KuhnMunkresSection() {
               )}
 
               <div className="flex gap-3 justify-between pt-2">
-                <button disabled={stepIdx === 0}
+                <button id="km-prev-step-btn" disabled={stepIdx === 0}
                   onClick={() => setStepIdx(Math.max(0, stepIdx - 1))}
                   className="btn-primary px-5 py-2.5 text-sm disabled:opacity-40">
                   ◀ Anterior
                 </button>
-                <button disabled={stepIdx === steps.length - 1}
+                <button id="km-next-step-btn" disabled={stepIdx === steps.length - 1}
                   onClick={() => setStepIdx(Math.min(steps.length - 1, stepIdx + 1))}
                   className="btn-primary px-5 py-2.5 text-sm disabled:opacity-40">
                   Siguiente ▶
@@ -1366,7 +1448,7 @@ function MaxFlowSection() {
             </button>
           </div>
 
-          <button onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide">
+          <button id="maxflow-solve-btn" onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide">
             {loading ? "Calculando..." : "⚡ Calcular Flujo Máximo"}
           </button>
           {error && <div className="alert-error text-sm">{error}</div>}
@@ -1637,7 +1719,7 @@ function MinCostFlowSection() {
             </div>
           </div>
 
-          <button onClick={handleSolve} disabled={loading || !isBalanced} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide disabled:opacity-50">
+          <button id="mincostflow-solve-btn" onClick={handleSolve} disabled={loading || !isBalanced} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide disabled:opacity-50">
             {loading ? "Calculando..." : isBalanced ? "⚡ Calcular Flujo a Costo Mínimo" : "⚠ Red desbalanceada"}
           </button>
           {error && <div className="alert-error text-sm">{error}</div>}

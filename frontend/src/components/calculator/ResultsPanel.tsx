@@ -64,7 +64,7 @@ function SimplexResults({ data }: { data: SimplexResponse }) {
                   <thead>
                     <tr>
                       <th>Base</th>
-                      <th>Cj</th>
+                      <th>CB</th>
                       {t.variable_names.map((v) => <th key={v}>{v}</th>)}
                       <th>b</th>
                     </tr>
@@ -75,7 +75,7 @@ function SimplexResults({ data }: { data: SimplexResponse }) {
                       return (
                         <tr key={ri}>
                           <td className="basic-var-col">{bv}</td>
-                          <td>{formatNumber(t.cj?.[ri]) ?? ""}</td>
+                          <td className="font-semibold text-teal-400">{formatNumber(t.cb?.[ri] ?? t.cj?.[ri])}</td>
                           {row.map((cell, ci) => (
                             <td
                               key={ci}

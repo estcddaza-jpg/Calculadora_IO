@@ -17,6 +17,7 @@ export interface SimplexTableau {
   basic_variables: string[];
   variable_names: string[];
   cj: number[];
+  cb?: number[];
   zj: number[];
   cj_zj: number[];
   z_value: number;

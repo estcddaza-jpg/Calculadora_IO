@@ -152,13 +152,19 @@ export default function CalculatorLayout() {
           {/* Method selector */}
           {mode === "linear" && (
             <div className="calc-toggle">
-              {(["simplex", "revised", "dual"] as SolveMethod[]).map((m) => (
+              {(["simplex", "revised", "graphical", "dual"] as SolveMethod[]).map((m) => (
                 <button
                   key={m}
                   className={`calc-toggle__btn calc-toggle__btn--sm ${method === m ? "calc-toggle__btn--active" : ""}`}
-                  onClick={() => setMethod(m)}
+                  onClick={() => {
+                    setMethod(m);
+                    if (resultsOpen && result) {
+                      handleSolve(m);
+                    }
+                  }}
+                  id={`method-btn-${m}`}
                 >
-                  {m === "simplex" ? "Estándar" : m === "revised" ? "Revisado" : "Dual"}
+                  {m === "simplex" ? "Estándar" : m === "revised" ? "Revisado" : m === "graphical" ? "Gráfico" : "Dual"}
                 </button>
               ))}
             </div>
