@@ -30,46 +30,48 @@ export default function NetworksPage() {
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        <div className="mb-8 flex justify-between items-start">
+    <div className="min-h-screen w-full bg-black text-white flex flex-col items-center py-8 px-4 sm:px-8">
+      <div className="w-full max-w-6xl space-y-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="text-3xl">🕸️</span>
-              <h1 className="text-3xl font-bold text-white">Redes y Proyectos</h1>
+            <div className="flex items-center gap-3">
+              <span className="text-4xl">🕸️</span>
+              <h1 className="text-3xl font-extrabold tracking-tight text-white">Redes y Proyectos</h1>
             </div>
-            <p className="text-slate-400">
-              Transporte, Asignación, CPM/PERT y Teoría de Colas con visualización completa.
+            <p className="text-sm text-slate-400 mt-1">
+              Asignación, Kuhn-Munkres, Flujo Máximo, Costo Mínimo, Transporte y CPM/PERT
             </p>
           </div>
-          <nav className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
+          <nav className="flex items-center gap-1.5 bg-white/5 p-1.5 rounded-xl border border-white/10 shadow-lg">
             <button
               onClick={() => window.location.href = "/"}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-all"
+              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-all"
             >
               📐 Programación Lineal
             </button>
             <button
               onClick={() => window.location.href = "/networks"}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-sm"
+              className="px-4 py-2 rounded-lg text-xs font-bold transition-all bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md"
             >
               🕸️ Redes, Asignación y Flujos
             </button>
           </nav>
         </div>
 
-        <div className="flex gap-1 p-1 bg-white/4 rounded-xl w-fit mb-8 border border-white/8">
+        {/* Pestañas grandes y centradas */}
+        <div className="flex flex-wrap items-center justify-center gap-2 p-2 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md shadow-lg">
           {sections.map((s) => (
             <button
               key={s.id}
               onClick={() => setSection(s.id)}
-              className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                 section === s.id
-                  ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25 scale-[1.02]"
+                  : "text-slate-400 hover:text-white hover:bg-white/5"
               }`}
             >
-              {s.icon} {s.label}
+              <span className="text-base">{s.icon}</span>
+              <span>{s.label}</span>
             </button>
           ))}
         </div>
@@ -141,22 +143,22 @@ function TransportSection() {
 
           {/* Tabla de costos */}
           <div className="overflow-x-auto">
-            <table className="simplex-table text-xs">
+            <table className="simplex-table text-sm">
               <thead>
                 <tr>
-                  <th>Origen\Destino</th>
+                  <th className="py-2.5">Origen\Destino</th>
                   {demand.map((_, j) => (
-                    <th key={j}>D{j + 1}</th>
+                    <th key={j} className="py-2.5">D{j + 1}</th>
                   ))}
-                  <th className="text-teal-400">Oferta</th>
+                  <th className="py-2.5 text-teal-400">Oferta</th>
                 </tr>
               </thead>
               <tbody>
                 {supply.map((s, i) => (
                   <tr key={i}>
-                    <td className="basic-var-col">O{i + 1}</td>
+                    <td className="basic-var-col font-bold">O{i + 1}</td>
                     {demand.map((_, j) => (
-                      <td key={j}>
+                      <td key={j} className="py-2">
                         <input
                           type="number"
                           value={costs[i]?.[j] ?? 0}
@@ -165,12 +167,12 @@ function TransportSection() {
                             newCosts[i][j] = Number(e.target.value);
                             setCosts(newCosts);
                           }}
-                          className="number-input w-14 text-center"
+                          className="number-input w-16 h-10 text-center font-bold"
                           id={`cost-${i}-${j}`}
                         />
                       </td>
                     ))}
-                    <td>
+                    <td className="py-2">
                       <input
                         type="number"
                         value={s}
@@ -179,16 +181,16 @@ function TransportSection() {
                           arr[i] = Number(e.target.value);
                           setSupply(arr);
                         }}
-                        className="number-input w-14 text-center text-teal-300"
+                        className="number-input w-16 h-10 text-center text-teal-300 font-bold"
                         id={`supply-${i}`}
                       />
                     </td>
                   </tr>
                 ))}
                 <tr>
-                  <td className="text-blue-400 font-semibold text-xs">Demanda</td>
+                  <td className="text-blue-400 font-bold text-sm">Demanda</td>
                   {demand.map((d, j) => (
-                    <td key={j}>
+                    <td key={j} className="py-2">
                       <input
                         type="number"
                         value={d}
@@ -197,12 +199,12 @@ function TransportSection() {
                           arr[j] = Number(e.target.value);
                           setDemand(arr);
                         }}
-                        className="number-input w-14 text-center text-blue-300"
+                        className="number-input w-16 h-10 text-center text-blue-300 font-bold"
                         id={`demand-${j}`}
                       />
                     </td>
                   ))}
-                  <td className="text-slate-500 text-xs">
+                  <td className="text-slate-400 text-xs font-semibold">
                     {Math.abs(supply.reduce((a, b) => a + b, 0) - demand.reduce((a, b) => a + b, 0)) < 0.01
                       ? "✓ Balanceado"
                       : "⚠ Desbalanceado"}
@@ -215,7 +217,7 @@ function TransportSection() {
           <button
             onClick={handleSolve}
             disabled={loading}
-            className="btn-primary w-full mt-4"
+            className="btn-primary w-full mt-5 py-3.5 text-base font-bold"
             id="transport-solve-btn"
           >
             {loading ? "Resolviendo..." : "⚡ Resolver Transporte"}
@@ -364,7 +366,7 @@ function CPMSection() {
         <button
           onClick={handleSolve}
           disabled={loading}
-          className="btn-primary w-full"
+          className="btn-primary w-full py-3.5 text-base font-bold"
           id="cpm-solve-btn"
         >
           {loading ? "Calculando..." : "⚡ Calcular CPM"}
@@ -530,7 +532,7 @@ function PERTSection() {
         <button
           onClick={handleSolve}
           disabled={loading}
-          className="btn-primary w-full"
+          className="btn-primary w-full py-3.5 text-base font-bold"
           id="pert-solve-btn"
         >
           {loading ? "Calculando..." : "⚡ Calcular PERT"}
@@ -720,7 +722,7 @@ function QueuesSection() {
         <button
           onClick={handleSolve}
           disabled={loading}
-          className="btn-primary w-full"
+          className="btn-primary w-full py-3.5 text-base font-bold"
           id="queue-solve-btn"
         >
           {loading ? "Calculando..." : "⚡ Calcular Modelo de Colas"}
@@ -1040,26 +1042,26 @@ function AssignmentSection() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="simplex-table text-xs">
+          <table className="simplex-table text-sm">
             <thead>
               <tr>
-                <th>Agente\Tarea</th>
-                {Array.from({ length: m }, (_, j) => <th key={j}>T{j + 1}</th>)}
+                <th className="py-2.5">Agente\Tarea</th>
+                {Array.from({ length: m }, (_, j) => <th key={j} className="py-2.5">T{j + 1}</th>)}
               </tr>
             </thead>
             <tbody>
               {matrix.map((row, i) => (
                 <tr key={i}>
-                  <td className="basic-var-col">A{i + 1}</td>
+                  <td className="basic-var-col font-bold">A{i + 1}</td>
                   {row.map((val, j) => (
-                    <td key={j}>
+                    <td key={j} className="py-2">
                       <input type="number" value={val}
                         onChange={(e) => {
                           const m2 = matrix.map((r) => [...r]);
                           m2[i][j] = Number(e.target.value);
                           setMatrix(m2);
                         }}
-                        className="number-input w-14 text-center"
+                        className="number-input w-16 h-10 text-center font-bold text-sm"
                       />
                     </td>
                   ))}
@@ -1069,7 +1071,7 @@ function AssignmentSection() {
           </table>
         </div>
 
-        <button onClick={handleSolve} disabled={loading} className="btn-primary w-full">
+        <button onClick={handleSolve} disabled={loading} className="btn-primary w-full py-3.5 text-base font-bold">
           {loading ? "Resolviendo..." : `⚡ Resolver Asignación (${type})`}
         </button>
         {error && <div className="alert-error text-sm">{error}</div>}
@@ -1150,26 +1152,26 @@ function KuhnMunkresSection() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="simplex-table text-xs">
+          <table className="simplex-table text-sm">
             <thead>
               <tr>
-                <th>Agente\Tarea</th>
-                {Array.from({ length: m }, (_, j) => <th key={j}>T{j + 1}</th>)}
+                <th className="py-2.5">Agente\Tarea</th>
+                {Array.from({ length: m }, (_, j) => <th key={j} className="py-2.5">T{j + 1}</th>)}
               </tr>
             </thead>
             <tbody>
               {matrix.map((row, i) => (
                 <tr key={i}>
-                  <td className="basic-var-col">A{i + 1}</td>
+                  <td className="basic-var-col font-bold">A{i + 1}</td>
                   {row.map((val, j) => (
-                    <td key={j}>
+                    <td key={j} className="py-2">
                       <input type="number" value={val}
                         onChange={(e) => {
                           const m2 = matrix.map((r) => [...r]);
                           m2[i][j] = Number(e.target.value);
                           setMatrix(m2);
                         }}
-                        className="number-input w-14 text-center"
+                        className="number-input w-16 h-10 text-center font-bold text-sm"
                       />
                     </td>
                   ))}
@@ -1179,7 +1181,7 @@ function KuhnMunkresSection() {
           </table>
         </div>
 
-        <button onClick={handleSolve} disabled={loading} className="btn-primary w-full">
+        <button onClick={handleSolve} disabled={loading} className="btn-primary w-full py-3.5 text-base font-bold">
           {loading ? "Calculando..." : "⚡ Ejecutar Kuhn-Munkres"}
         </button>
         {error && <div className="alert-error text-sm">{error}</div>}
@@ -1350,7 +1352,7 @@ function MaxFlowSection() {
           </button>
         </div>
 
-        <button onClick={handleSolve} disabled={loading} className="btn-primary w-full">
+        <button onClick={handleSolve} disabled={loading} className="btn-primary w-full py-3.5 text-base font-bold">
           {loading ? "Calculando..." : "⚡ Calcular Flujo Máximo"}
         </button>
         {error && <div className="alert-error text-sm">{error}</div>}
@@ -1619,7 +1621,7 @@ function MinCostFlowSection() {
           </div>
         </div>
 
-        <button onClick={handleSolve} disabled={loading || !isBalanced} className="btn-primary w-full disabled:opacity-50">
+        <button onClick={handleSolve} disabled={loading || !isBalanced} className="btn-primary w-full py-3.5 text-base font-bold disabled:opacity-50">
           {loading ? "Calculando..." : isBalanced ? "⚡ Calcular Flujo a Costo Mínimo" : "⚠ Red desbalanceada"}
         </button>
         {error && <div className="alert-error text-sm">{error}</div>}
