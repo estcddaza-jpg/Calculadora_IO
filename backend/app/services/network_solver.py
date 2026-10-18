@@ -209,7 +209,7 @@ def _vogel_approximation(supply, demand, costs, src_names, dst_names):
 
 
 # ─────────────────────────────────────────────────────────────────────
-#  PROBLEMA DE ASIGNACIÓN — Método Húngaro
+#  PROBLEMA DE ASIGNACIÓN — Método Húngaro (con pasos)
 # ─────────────────────────────────────────────────────────────────────
 
 def solve_assignment(
@@ -218,55 +218,224 @@ def solve_assignment(
     agent_names: Optional[List[str]] = None,
     task_names: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    """Método Húngaro para problema de asignación."""
-    matrix = np.array(cost_matrix, dtype=float)
-    n = matrix.shape[0]
+    """Método Húngaro para problema de asignación con pasos del algoritmo Kuhn-Munkres."""
+    orig_matrix = np.array(cost_matrix, dtype=float)
+    n_rows, n_cols = orig_matrix.shape
+
+    # Auto-balance: pad to square
+    n = max(n_rows, n_cols)
+    matrix = np.zeros((n, n), dtype=float)
+    matrix[:n_rows, :n_cols] = orig_matrix
 
     if agent_names is None:
-        agent_names = [f"Agente {i+1}" for i in range(n)]
+        agent_names = [f"Agente {i+1}" for i in range(n_rows)]
     if task_names is None:
-        task_names = [f"Tarea {j+1}" for j in range(n)]
+        task_names = [f"Tarea {j+1}" for j in range(n_cols)]
 
-    if problem_type == "MAX":
-        matrix = matrix.max() - matrix
+    # Extend names for padded rows/cols
+    agent_names_ext = list(agent_names) + [f"Ficticio {i+1}" for i in range(n - n_rows)]
+    task_names_ext = list(task_names) + [f"Ficticio {j+1}" for j in range(n - n_cols)]
 
-    steps = []
+    km_steps = solve_kuhn_munkres(
+        cost_matrix=cost_matrix,
+        problem_type=problem_type,
+        agent_names=agent_names_ext[:n],
+        task_names=task_names_ext[:n],
+    )
 
-    # Paso 1: Reducción por filas
-    row_min = matrix.min(axis=1, keepdims=True)
-    matrix = matrix - row_min
-    steps.append({"step": "Reducción por filas", "matrix": matrix.tolist()})
-
-    # Paso 2: Reducción por columnas
-    col_min = matrix.min(axis=0, keepdims=True)
-    matrix = matrix - col_min
-    steps.append({"step": "Reducción por columnas", "matrix": matrix.tolist()})
-
-    # Método húngaro simplificado usando scipy
+    # Use scipy for reliable optimal
     from scipy.optimize import linear_sum_assignment
-    orig_matrix = np.array(cost_matrix, dtype=float)
+    work = np.array(cost_matrix, dtype=float)
+    padded = np.zeros((n, n), dtype=float)
+    padded[:n_rows, :n_cols] = work
     if problem_type == "MAX":
-        row_ind, col_ind = linear_sum_assignment(-orig_matrix)
+        row_ind, col_ind = linear_sum_assignment(-padded)
     else:
-        row_ind, col_ind = linear_sum_assignment(orig_matrix)
+        row_ind, col_ind = linear_sum_assignment(padded)
 
-    total = float(sum(orig_matrix[r, c] for r, c in zip(row_ind, col_ind)))
+    total = float(sum(orig_matrix[r, c] for r, c in zip(row_ind, col_ind) if r < n_rows and c < n_cols))
     assignments = [
         {"agent": agent_names[r], "task": task_names[c], "cost": float(orig_matrix[r, c])}
-        for r, c in zip(row_ind, col_ind)
+        for r, c in zip(row_ind, col_ind) if r < n_rows and c < n_cols
     ]
 
     return {
         "status": "optimal",
         "total_cost": round(total, 4),
         "assignments": assignments,
-        "steps": steps,
+        "steps": km_steps,
         "error_message": None,
     }
 
 
+def solve_kuhn_munkres(
+    cost_matrix: List[List[float]],
+    problem_type: str = "MIN",
+    agent_names: Optional[List[str]] = None,
+    task_names: Optional[List[str]] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Implementación explícita paso a paso del algoritmo de Kuhn-Munkres.
+    Devuelve el historial completo de matrices para visualización académica.
+    """
+    orig = np.array(cost_matrix, dtype=float)
+    n_rows, n_cols = orig.shape
+    n = max(n_rows, n_cols)
+
+    # Pad to square matrix
+    matrix = np.zeros((n, n), dtype=float)
+    matrix[:n_rows, :n_cols] = orig
+
+    if agent_names is None:
+        agent_names = [f"Agente {i+1}" for i in range(n)]
+    if task_names is None:
+        task_names = [f"Tarea {j+1}" for j in range(n)]
+
+    steps: List[Dict[str, Any]] = []
+
+    # Step 0: Original (or inverted for MAX)
+    if problem_type == "MAX":
+        matrix = matrix.max() - matrix
+        steps.append({
+            "step": "Conversión MAX→MIN (restar de máximo)",
+            "description": f"Para maximizar, se convierte: nuevo_costo = {orig.max()} - costo_original",
+            "matrix": matrix.tolist(),
+            "row_names": agent_names,
+            "col_names": task_names,
+        })
+    else:
+        steps.append({
+            "step": "Matriz original",
+            "description": "Matriz de costos de entrada al algoritmo.",
+            "matrix": matrix.tolist(),
+            "row_names": agent_names,
+            "col_names": task_names,
+        })
+
+    # Step 1: Row reduction
+    row_min = matrix.min(axis=1, keepdims=True)
+    matrix = matrix - row_min
+    steps.append({
+        "step": "Paso 1 — Reducción por filas",
+        "description": f"Se resta el mínimo de cada fila: {row_min.flatten().tolist()}",
+        "matrix": matrix.tolist(),
+        "row_names": agent_names,
+        "col_names": task_names,
+        "highlight": "rows",
+    })
+
+    # Step 2: Column reduction
+    col_min = matrix.min(axis=0, keepdims=True)
+    matrix = matrix - col_min
+    steps.append({
+        "step": "Paso 2 — Reducción por columnas",
+        "description": f"Se resta el mínimo de cada columna: {col_min.flatten().tolist()}",
+        "matrix": matrix.tolist(),
+        "row_names": agent_names,
+        "col_names": task_names,
+        "highlight": "cols",
+    })
+
+    # Steps 3+: Cover zeros and iterate until assignment found
+    iteration = 3
+    while True:
+        # Find minimum cover lines
+        assignment_matrix = np.zeros_like(matrix, dtype=int)
+        row_covered = np.zeros(n, dtype=bool)
+        col_covered = np.zeros(n, dtype=bool)
+
+        # Greedy zero covering for display
+        row_has_zero = (matrix == 0).any(axis=1)
+        col_has_zero = (matrix == 0).any(axis=0)
+        lines_used = int(row_has_zero.sum()) if row_has_zero.sum() < col_has_zero.sum() else int(col_has_zero.sum())
+
+        # Check if we can make n assignments on zeros
+        from scipy.optimize import linear_sum_assignment
+        # Use big-M trick: where matrix > 0, put large value; 0s become candidates
+        zero_mask = (matrix == 0).astype(float)
+        # We want to maximize the number of zero-assignments
+        try:
+            ri, ci = linear_sum_assignment(-zero_mask)
+            n_assigned = int(sum(1 for r, c in zip(ri, ci) if matrix[r, c] == 0))
+        except Exception:
+            n_assigned = 0
+
+        if n_assigned == n:
+            # Found optimal assignment
+            assignments_list = [
+                {"row": int(r), "col": int(c), "value": float(matrix[r, c])}
+                for r, c in zip(ri, ci) if matrix[r, c] == 0
+            ]
+            steps.append({
+                "step": f"Paso {iteration} — Asignación óptima encontrada",
+                "description": f"Se encontraron {n} ceros independientes. El algoritmo termina.",
+                "matrix": matrix.tolist(),
+                "row_names": agent_names,
+                "col_names": task_names,
+                "assignments": assignments_list,
+                "is_final": True,
+            })
+            break
+
+        # Find minimum element not covered by lines and adjust
+        # Simple heuristic cover: cover rows with most zeros, then remaining cols
+        row_zeros = (matrix == 0).sum(axis=1)
+        col_zeros = (matrix == 0).sum(axis=0)
+
+        for _ in range(n):
+            if (matrix[~row_covered, :][:, ~col_covered] == 0).any():
+                # Cover row or col that has most uncovered zeros
+                uncovered = matrix.copy()
+                uncovered[row_covered, :] = 1
+                uncovered[:, col_covered] = 1
+                rz = (uncovered == 0).sum(axis=1)
+                cz = (uncovered == 0).sum(axis=0)
+                if rz.max() >= cz.max():
+                    row_covered[rz.argmax()] = True
+                else:
+                    col_covered[cz.argmax()] = True
+            else:
+                break
+
+        # Find min uncovered
+        uncovered_vals = matrix[~row_covered, :][:, ~col_covered]
+        if uncovered_vals.size == 0:
+            break
+        delta = float(uncovered_vals.min())
+
+        steps.append({
+            "step": f"Paso {iteration} — Iteración de cobertura",
+            "description": (
+                f"Las líneas mínimas no cubren todos los ceros. "
+                f"Δ = {delta:.4f} (menor elemento no cubierto). "
+                f"Se resta Δ de los no cubiertos y se suma Δ a los doblemente cubiertos."
+            ),
+            "matrix": matrix.tolist(),
+            "row_names": agent_names,
+            "col_names": task_names,
+            "delta": delta,
+            "row_covered": row_covered.tolist(),
+            "col_covered": col_covered.tolist(),
+        })
+
+        # Apply delta adjustment
+        for r in range(n):
+            for c in range(n):
+                if not row_covered[r] and not col_covered[c]:
+                    matrix[r, c] -= delta
+                elif row_covered[r] and col_covered[c]:
+                    matrix[r, c] += delta
+
+        iteration += 1
+        if iteration > 20:  # safety break
+            break
+
+    return steps
+
+
+
 # ─────────────────────────────────────────────────────────────────────
-#  FLUJO MÁXIMO
+#  FLUJO MÁXIMO — Ford-Fulkerson / Edmonds-Karp con rutas de aumento
 # ─────────────────────────────────────────────────────────────────────
 
 def solve_max_flow(
@@ -274,35 +443,185 @@ def solve_max_flow(
     source: str,
     sink: str,
 ) -> Dict[str, Any]:
-    """Ford-Fulkerson / Edmonds-Karp con NetworkX."""
-    G = nx.DiGraph()
+    """
+    Edmonds-Karp (BFS) con rutas de aumento explícitas.
+    Devuelve el flujo máximo, el flujo por arista y las augmenting paths.
+    """
+    # Build node list
+    nodes = set()
     for e in edges:
-        G.add_edge(e["source"], e["target"], capacity=e["capacity"])
+        nodes.add(e["source"])
+        nodes.add(e["target"])
 
-    try:
-        flow_value, flow_dict = nx.maximum_flow(G, source, sink, flow_func=nx.algorithms.flow.edmonds_karp)
-    except nx.NetworkXError as e:
-        return {"status": "error", "error_message": str(e)}
+    # Build capacity graph
+    capacity: Dict[str, Dict[str, float]] = {n: {} for n in nodes}
+    for e in edges:
+        u, v, c = e["source"], e["target"], float(e["capacity"])
+        capacity[u][v] = capacity[u].get(v, 0) + c
+        if v not in capacity:
+            capacity[v] = {}
+        if u not in capacity[v]:
+            capacity[v][u] = 0
+
+    # Flow graph
+    flow: Dict[str, Dict[str, float]] = {u: {v: 0.0 for v in capacity[u]} for u in capacity}
+
+    augmenting_paths: List[Dict[str, Any]] = []
+    total_flow = 0.0
+
+    def bfs_path():
+        """BFS to find augmenting path from source to sink."""
+        parent = {source: None}
+        visited = {source}
+        queue = [source]
+        while queue:
+            u = queue.pop(0)
+            for v in capacity[u]:
+                residual = capacity[u][v] - flow[u].get(v, 0)
+                if v not in visited and residual > 0:
+                    parent[v] = u
+                    visited.add(v)
+                    if v == sink:
+                        # Reconstruct path
+                        path = []
+                        node = sink
+                        while node != source:
+                            prev = parent[node]
+                            path.append((prev, node))
+                            node = prev
+                        path.reverse()
+                        return path
+                    queue.append(v)
+        return None
+
+    # Edmonds-Karp iterations
+    while True:
+        path = bfs_path()
+        if path is None:
+            break
+
+        # Calculate bottleneck
+        bottleneck = float('inf')
+        for u, v in path:
+            residual = capacity[u][v] - flow[u].get(v, 0)
+            bottleneck = min(bottleneck, residual)
+
+        # Update flows
+        for u, v in path:
+            flow[u][v] = flow[u].get(v, 0) + bottleneck
+            flow[v][u] = flow[v].get(u, 0) - bottleneck
+
+        total_flow += bottleneck
+
+        # Record augmenting path
+        path_nodes = [path[0][0]] + [v for _, v in path]
+        augmenting_paths.append({
+            "path": path_nodes,
+            "bottleneck": bottleneck,
+            "edges": [{"from": u, "to": v} for u, v in path],
+        })
+
+    # Build result edges (only original edges with positive flow)
+    original_edges = set()
+    for e in edges:
+        original_edges.add((e["source"], e["target"]))
 
     flow_edges = []
+    for u, v in original_edges:
+        f = flow.get(u, {}).get(v, 0)
+        cap = capacity.get(u, {}).get(v, 0)
+        flow_edges.append({
+            "source": u,
+            "target": v,
+            "flow": max(0, f),
+            "capacity": cap,
+            "label": f"{max(0, f):.0f}/{cap:.0f}",
+        })
+
+    return {
+        "status": "optimal",
+        "max_flow": total_flow,
+        "flow_on_edges": flow_edges,
+        "augmenting_paths": augmenting_paths,
+        "error_message": None,
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────
+#  FLUJO A COSTO MÍNIMO
+# ─────────────────────────────────────────────────────────────────────
+
+def solve_min_cost_flow(
+    nodes: List[Dict],
+    edges: List[Dict],
+) -> Dict[str, Any]:
+    """
+    Flujo a Costo Mínimo usando NetworkX.
+    nodes: [{"id": str, "demand": float}]  (positivo=oferta, negativo=demanda, 0=transbordo)
+    edges: [{"source": str, "target": str, "capacity": float, "cost": float, "min_capacity": float (opt)}]
+    """
+    # Validate balance
+    total_balance = sum(n.get("demand", 0) for n in nodes)
+    if abs(total_balance) > 1e-6:
+        return {
+            "status": "error",
+            "error_message": f"La suma de ofertas/demandas debe ser 0. Suma actual: {total_balance:.4f}",
+        }
+
+    G = nx.DiGraph()
+
+    for n in nodes:
+        # NetworkX min_cost_flow: demand > 0 means the node demands flow (sink-like)
+        # demand < 0 means the node supplies flow (source-like)
+        # We invert: user inputs positive=supply (=negative demand in nx)
+        G.add_node(n["id"], demand=-n.get("demand", 0))
+
+    for e in edges:
+        G.add_edge(
+            e["source"],
+            e["target"],
+            capacity=float(e.get("capacity", 1e9)),
+            weight=float(e.get("cost", 0)),
+            lower=float(e.get("min_capacity", 0)),
+        )
+
+    try:
+        flow_dict = nx.min_cost_flow(G)
+    except nx.NetworkXUnfeasible:
+        return {
+            "status": "infeasible",
+            "error_message": "El problema de flujo a costo mínimo no tiene solución factible.",
+        }
+    except Exception as ex:
+        return {"status": "error", "error_message": str(ex)}
+
+    # Calculate total cost and build edge results
+    total_cost = 0.0
+    flow_edges = []
     for u in flow_dict:
-        for v, flow in flow_dict[u].items():
-            if flow > 0:
+        for v, f in flow_dict[u].items():
+            if G.has_edge(u, v):
+                cost_per_unit = G[u][v].get("weight", 0)
                 cap = G[u][v].get("capacity", 0)
+                arc_cost = f * cost_per_unit
+                total_cost += arc_cost
                 flow_edges.append({
                     "source": u,
                     "target": v,
-                    "flow": flow,
+                    "flow": round(f, 4),
                     "capacity": cap,
-                    "label": f"{flow}/{cap}",
+                    "cost_per_unit": cost_per_unit,
+                    "arc_cost": round(arc_cost, 4),
+                    "label": f"{f:.0f}/{cap:.0f} (${arc_cost:.2f})",
                 })
 
     return {
         "status": "optimal",
-        "max_flow": flow_value,
+        "total_cost": round(total_cost, 4),
         "flow_on_edges": flow_edges,
         "error_message": None,
     }
+
 
 
 # ─────────────────────────────────────────────────────────────────────

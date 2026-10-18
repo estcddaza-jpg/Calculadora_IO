@@ -158,8 +158,18 @@ export const solveAssignment = async (payload: unknown) => {
   return data;
 };
 
+export const solveKuhnMunkres = async (payload: unknown) => {
+  const { data } = await api.post("/networks/kuhn-munkres", payload);
+  return data;
+};
+
 export const solveMaxFlow = async (payload: unknown) => {
   const { data } = await api.post("/networks/max-flow", payload);
+  return data;
+};
+
+export const solveMinCostFlow = async (payload: unknown) => {
+  const { data } = await api.post("/networks/min-cost-flow", payload);
   return data;
 };
 

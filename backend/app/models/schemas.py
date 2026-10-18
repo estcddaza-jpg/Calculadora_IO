@@ -240,6 +240,7 @@ class MaxFlowResponse(BaseModel):
     status: str
     max_flow: Optional[float] = None
     flow_on_edges: Optional[List[Dict[str, Any]]] = None
+    augmenting_paths: Optional[List[Dict[str, Any]]] = None
     error_message: Optional[str] = None
 
 
@@ -303,6 +304,54 @@ class AssignmentRequest(BaseModel):
 class AssignmentResponse(BaseModel):
     status: str
     total_cost: Optional[float] = None
-    assignments: Optional[List[Dict[str, str]]] = None
+    assignments: Optional[List[Dict[str, Any]]] = None
+    steps: Optional[List[Dict[str, Any]]] = None
+    error_message: Optional[str] = None
+
+
+# ─────────────────────────────────────────────
+#  Flujo a Costo Mínimo
+# ─────────────────────────────────────────────
+
+class MinCostFlowNode(BaseModel):
+    id: str
+    demand: float = 0.0  # positive=supply, negative=demand, 0=transshipment
+
+
+class MinCostFlowEdge(BaseModel):
+    source: str
+    target: str
+    capacity: float
+    cost: float
+    min_capacity: Optional[float] = 0.0
+
+
+class MinCostFlowRequest(BaseModel):
+    nodes: List[MinCostFlowNode]
+    edges: List[MinCostFlowEdge]
+
+
+class MinCostFlowResponse(BaseModel):
+    status: str
+    total_cost: Optional[float] = None
+    flow_on_edges: Optional[List[Dict[str, Any]]] = None
+    error_message: Optional[str] = None
+
+
+# ─────────────────────────────────────────────
+#  Kuhn-Munkres (endpoint dedicado para pasos)
+# ─────────────────────────────────────────────
+
+class KuhnMunkresRequest(BaseModel):
+    cost_matrix: List[List[float]]
+    type: Literal["MIN", "MAX"] = "MIN"
+    agent_names: Optional[List[str]] = None
+    task_names: Optional[List[str]] = None
+
+
+class KuhnMunkresResponse(BaseModel):
+    status: str
+    total_cost: Optional[float] = None
+    assignments: Optional[List[Dict[str, Any]]] = None
     steps: Optional[List[Dict[str, Any]]] = None
     error_message: Optional[str] = None

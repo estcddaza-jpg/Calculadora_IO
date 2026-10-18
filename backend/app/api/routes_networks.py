@@ -5,14 +5,17 @@ from fastapi import APIRouter, HTTPException
 from app.models.schemas import (
     TransportRequest, TransportResponse,
     AssignmentRequest, AssignmentResponse,
+    KuhnMunkresRequest, KuhnMunkresResponse,
     MaxFlowRequest, MaxFlowResponse,
+    MinCostFlowRequest, MinCostFlowResponse,
     MSTRequest, MSTResponse,
     CPMRequest, CPMResponse,
     PERTRequest, PERTResponse,
     QueueRequest, QueueResponse,
 )
 from app.services.network_solver import (
-    solve_transport, solve_assignment, solve_max_flow, solve_mst
+    solve_transport, solve_assignment, solve_kuhn_munkres,
+    solve_max_flow, solve_min_cost_flow, solve_mst,
 )
 from app.services.pert_cpm_solver import solve_cpm, solve_pert
 from app.services.queue_solver import solve_queue
@@ -52,6 +55,40 @@ def assignment(request: AssignmentRequest):
         if result.get("status") == "error":
             raise HTTPException(status_code=400, detail=result["error_message"])
         return AssignmentResponse(**result)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/kuhn-munkres", response_model=KuhnMunkresResponse, summary="Kuhn-Munkres (Húngaro paso a paso)")
+def kuhn_munkres(request: KuhnMunkresRequest):
+    try:
+        # Get full result (same as assignment but emphasizing steps)
+        result = solve_assignment(
+            cost_matrix=request.cost_matrix,
+            problem_type=request.type,
+            agent_names=request.agent_names,
+            task_names=request.task_names,
+        )
+        if result.get("status") == "error":
+            raise HTTPException(status_code=400, detail=result["error_message"])
+        return KuhnMunkresResponse(**result)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/min-cost-flow", response_model=MinCostFlowResponse, summary="Flujo a Costo Mínimo")
+def min_cost_flow(request: MinCostFlowRequest):
+    try:
+        nodes = [n.model_dump() for n in request.nodes]
+        edges = [e.model_dump() for e in request.edges]
+        result = solve_min_cost_flow(nodes=nodes, edges=edges)
+        if result["status"] == "error":
+            raise HTTPException(status_code=400, detail=result["error_message"])
+        return MinCostFlowResponse(**result)
     except HTTPException:
         raise
     except Exception as e:
