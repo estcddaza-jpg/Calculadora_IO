@@ -108,21 +108,32 @@ export default function CalculatorLayout() {
           <span className="calc-header__title">Calculadora IO</span>
         </div>
 
-        <div className="calc-header__controls">
-          {/* Mode selector */}
-          <select
-            className="calc-select"
-            value="linear"
-            onChange={(e) => {
-              if (e.target.value === "networks") window.location.href = "/networks";
-              else setMode(e.target.value as any);
-            }}
+        {/* ── TOP MODULE NAVIGATION TABS ── */}
+        <nav className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
+          <button
+            onClick={() => window.location.href = "/"}
+            className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-sm"
           >
-            <option value="linear">📐 Programación Lineal</option>
-            <option value="networks">🕸️ Redes y Proyectos</option>
-            <option value="queues">🕒 Teoría de Colas</option>
-            <option value="advanced">📈 Modelos Avanzados</option>
-          </select>
+            📐 Programación Lineal
+          </button>
+          <button
+            onClick={() => window.location.href = "/networks"}
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1.5"
+            title="Ir a Asignación, Kuhn-Munkres, Flujo Máximo, Costo Mínimo, etc."
+          >
+            <span>🕸️ Redes, Asignación y Flujos</span>
+            <span className="px-1.5 py-0.5 bg-orange-500/20 text-orange-400 text-[10px] rounded font-mono border border-orange-500/30">NUEVO</span>
+          </button>
+        </nav>
+
+        <div className="calc-header__controls">
+          {/* Mobile fallback button */}
+          <button
+            onClick={() => window.location.href = "/networks"}
+            className="md:hidden px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-500 text-white"
+          >
+            🕸️ Redes
+          </button>
 
           {/* OPT type toggle */}
           {mode === "linear" && (

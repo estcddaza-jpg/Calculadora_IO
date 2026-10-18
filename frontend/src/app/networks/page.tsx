@@ -42,18 +42,20 @@ export default function NetworksPage() {
               Transporte, Asignación, CPM/PERT y Teoría de Colas con visualización completa.
             </p>
           </div>
-          <select
-            className="bg-slate-800/50 border border-white/10 text-white text-sm rounded-lg px-4 py-2 hover:bg-slate-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value="networks"
-            onChange={(e) => {
-              if (e.target.value === "linear") window.location.href = "/";
-            }}
-          >
-            <option value="linear">📐 Programación Lineal</option>
-            <option value="networks">🕸️ Redes y Proyectos</option>
-            <option value="queues">🕒 Teoría de Colas</option>
-            <option value="advanced">📈 Modelos Avanzados</option>
-          </select>
+          <nav className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
+            <button
+              onClick={() => window.location.href = "/"}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-all"
+            >
+              📐 Programación Lineal
+            </button>
+            <button
+              onClick={() => window.location.href = "/networks"}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-sm"
+            >
+              🕸️ Redes, Asignación y Flujos
+            </button>
+          </nav>
         </div>
 
         <div className="flex gap-1 p-1 bg-white/4 rounded-xl w-fit mb-8 border border-white/8">
