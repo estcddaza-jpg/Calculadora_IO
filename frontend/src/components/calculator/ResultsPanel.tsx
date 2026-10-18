@@ -35,7 +35,7 @@ function SimplexResults({ data }: { data: SimplexResponse }) {
           {data.status.toUpperCase()}
         </span>
         <span className="results-zval">
-          Z* = <strong>{formatNumber(data.optimal_value)}</strong>
+          Z* = <strong>{data.status === "unbounded" ? "∞" : data.status === "infeasible" ? "-" : formatNumber(data.optimal_value)}</strong>
         </span>
       </div>
 
@@ -148,7 +148,7 @@ function GraphicalResults({ data }: { data: GraphicalResponse }) {
             {data.status.toUpperCase()}
           </span>
           <span className="results-zval" style={{ marginLeft: '10px' }}>
-            Z* = <strong>{formatNumber(data.optimal_value)}</strong>
+            Z* = <strong>{data.status === "unbounded" ? "∞" : data.status === "infeasible" ? "-" : formatNumber(data.optimal_value)}</strong>
           </span>
         </div>
         
@@ -186,7 +186,7 @@ function RevisedSimplexResults({ data }: { data: RevisedSimplexResponse }) {
           {data.status.toUpperCase()}
         </span>
         <span className="results-zval">
-          Z* = <strong>{formatNumber(data.optimal_value)}</strong>
+          Z* = <strong>{data.status === "unbounded" ? "∞" : data.status === "infeasible" ? "-" : formatNumber(data.optimal_value)}</strong>
         </span>
       </div>
 
