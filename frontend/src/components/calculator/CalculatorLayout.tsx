@@ -16,7 +16,7 @@ type SolveMethod = "simplex" | "revised" | "graphical" | "dual";
 
 const MODE_LABELS: Record<string, string> = {
   linear:   "📐 Programación Lineal",
-  networks: "🕸 Redes y Proyectos",
+  networks: "Redes y Proyectos",
   queues:   "⏱ Teoría de Colas",
   advanced: "🧩 Modelos Avanzados",
 };
@@ -121,7 +121,7 @@ export default function CalculatorLayout() {
             className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1.5"
             title="Ir a Asignación, Kuhn-Munkres, Flujo Máximo, Costo Mínimo, etc."
           >
-            <span>🕸️ Redes, Asignación y Flujos</span>
+            <span>Redes, Asignación y Flujos</span>
             <span className="px-1.5 py-0.5 bg-orange-500/20 text-orange-400 text-[10px] rounded font-mono border border-orange-500/30">NUEVO</span>
           </button>
         </nav>
@@ -132,7 +132,7 @@ export default function CalculatorLayout() {
             onClick={() => window.location.href = "/networks"}
             className="md:hidden px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-500 text-white"
           >
-            🕸️ Redes
+            Redes
           </button>
 
           {/* OPT type toggle */}

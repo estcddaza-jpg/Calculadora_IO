@@ -35,7 +35,6 @@ export default function NetworksPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10">
           <div>
             <div className="flex items-center gap-3">
-              <span className="text-4xl">🕸️</span>
               <h1 className="text-3xl font-extrabold tracking-tight text-white">Redes y Proyectos</h1>
             </div>
             <p className="text-sm text-slate-400 mt-1">
@@ -53,7 +52,7 @@ export default function NetworksPage() {
               onClick={() => window.location.href = "/networks"}
               className="px-4 py-2 rounded-lg text-xs font-bold transition-all bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md"
             >
-              🕸️ Redes, Asignación y Flujos
+              Redes, Asignación y Flujos
             </button>
           </nav>
         </div>
