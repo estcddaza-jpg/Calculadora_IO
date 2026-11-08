@@ -9,6 +9,9 @@
         "lint": "eslint"
     },
     "dependencies": {
+        "@capacitor/android": "^8.6.0",
+        "@capacitor/cli": "^8.6.0",
+        "@capacitor/core": "^8.6.0",
         "axios": "^1.20.0",
         "chart.js": "^4.5.1",
         "katex": "^0.18.6",

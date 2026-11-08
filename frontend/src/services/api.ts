@@ -2,8 +2,18 @@ import axios from "axios";
 
 const getApiBase = () => {
   if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  if (typeof window !== "undefined" && window.location?.hostname) {
-    return `http://${window.location.hostname}:8000/api`;
+  if (typeof window !== "undefined") {
+    const custom = localStorage.getItem("custom_api_url");
+    if (custom) return custom;
+    const isCapacitor =
+      window.location.protocol === "capacitor:" ||
+      (window.location.hostname === "localhost" && /android|iphone|ipad/i.test(navigator.userAgent));
+    if (isCapacitor) {
+      return "http://192.168.0.11:8000/api";
+    }
+    if (window.location?.hostname) {
+      return `http://${window.location.hostname}:8000/api`;
+    }
   }
   return "http://localhost:8000/api";
 };
@@ -15,9 +25,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  if (!process.env.NEXT_PUBLIC_API_URL && typeof window !== "undefined" && window.location?.hostname) {
-    config.baseURL = `http://${window.location.hostname}:8000/api`;
-  }
+  config.baseURL = getApiBase();
   return config;
 });
 

@@ -1,0 +1,12 @@
+{
+  "appId": "com.calculadoraio.app",
+  "appName": "Calculadora IO",
+  "webDir": "out",
+  "server": {
+    "cleartext": true,
+    "androidScheme": "http"
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}
