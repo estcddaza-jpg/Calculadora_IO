@@ -82,6 +82,9 @@ export default function CalcKeypad({ onSolve }: CalcKeypadProps) {
     : LINEAR_KEYS_NORMAL;
 
   function handleKey(k: KeyDef) {
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+      try { navigator.vibrate(12); } catch (_) {}
+    }
     switch (k.token) {
       case "__CLEAR__":   clearAll();              break;
       case "__DEL__":     deleteLastToken();        break;

@@ -4,8 +4,8 @@ echo   Calculadora IO - Sistema de Arranque
 echo =========================================
 echo.
 
-echo [1/2] Iniciando Backend (FastAPI - Puerto 8000)...
-start "Backend - FastAPI" cmd /k "cd /d "%~dp0backend" && python -m uvicorn app.main:app --reload --port 8000"
+echo [1/2] Iniciando Backend (FastAPI - Puerto 8000 en 0.0.0.0)...
+start "Backend - FastAPI" cmd /k "cd /d "%~dp0backend" && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
 
 timeout /t 3 /nobreak > nul
 
@@ -17,9 +17,10 @@ timeout /t 5 /nobreak > nul
 echo.
 echo =========================================
 echo   Sistema listo!
-echo   Backend: http://127.0.0.1:8000
-echo   API Docs: http://127.0.0.1:8000/docs
-echo   Frontend: http://localhost:3000
+echo   PC Local:   http://localhost:3000
+echo   En Movil:   http://192.168.0.11:3000 (mismo WiFi)
+echo   Backend:    http://0.0.0.0:8000
+echo   API Docs:   http://localhost:8000/docs
 echo =========================================
 echo.
 start "" "http://localhost:3000"

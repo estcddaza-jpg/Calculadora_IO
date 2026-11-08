@@ -1,11 +1,24 @@
 import axios from "axios";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const getApiBase = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== "undefined" && window.location?.hostname) {
+    return `http://${window.location.hostname}:8000/api`;
+  }
+  return "http://localhost:8000/api";
+};
 
 const api = axios.create({
-  baseURL: API_BASE,
+  baseURL: getApiBase(),
   headers: { "Content-Type": "application/json" },
   timeout: 30000,
+});
+
+api.interceptors.request.use((config) => {
+  if (!process.env.NEXT_PUBLIC_API_URL && typeof window !== "undefined" && window.location?.hostname) {
+    config.baseURL = `http://${window.location.hostname}:8000/api`;
+  }
+  return config;
 });
 
 // ─────────────────────────────────────────────

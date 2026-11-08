@@ -127,12 +127,12 @@ export default function CalculatorLayout() {
         </nav>
 
         <div className="calc-header__controls">
-          {/* Mobile fallback button */}
+          {/* Mobile module navigation button */}
           <button
             onClick={() => window.location.href = "/networks"}
-            className="md:hidden px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-500 text-white"
+            className="md:hidden px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-sm flex items-center gap-1 active:scale-95 transition-transform"
           >
-            Redes
+            <span>🌐 Redes</span>
           </button>
 
           {/* OPT type toggle */}
@@ -197,6 +197,15 @@ export default function CalculatorLayout() {
           <CalcDisplay />
           <CalcKeypad onSolve={handleSolve} />
         </section>
+
+        {/* Mobile backdrop */}
+        {resultsOpen && (
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
+            onClick={() => setResultsOpen(false)}
+            aria-label="Cerrar panel de resultados"
+          />
+        )}
 
         {/* Right panel — Results */}
         <section className={`calc-right ${resultsOpen ? "calc-right--open" : ""}`}>

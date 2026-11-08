@@ -84,7 +84,7 @@ body{overflow-y:auto;overflow-x:hidden}
 /* ─── CALCULATOR CARD (always centered) ─── */
 .calc-center{
   display:flex;flex-direction:column;
-  width:420px;flex-shrink:0;
+  width:min(440px, 100vw);flex-shrink:0;
   /* center horizontally when alone */
   margin:0 auto;
   overflow:hidden;
@@ -181,6 +181,8 @@ body{overflow-y:auto;overflow-x:hidden}
   transition:transform .08s,filter .1s,box-shadow .12s;
   position:relative;overflow:hidden;
   -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  user-select:none;-webkit-user-select:none;
   line-height:1;
 }
 /* press feedback */
@@ -375,12 +377,17 @@ body{overflow-y:auto;overflow-x:hidden}
   font-size: 0.88rem;
   padding: 8px 12px;
   outline: none;
+  touch-action: manipulation;
   transition: border-color 0.15s, background 0.15s;
   font-family: var(--font-mono);
 }
 .number-input:focus {
   border-color: var(--clr-op);
   background: var(--clr-surface3);
+}
+
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
 }
 
 .styled-select {
