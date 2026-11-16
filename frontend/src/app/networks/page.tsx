@@ -30,60 +30,67 @@ export default function NetworksPage() {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-black text-white flex flex-col items-center py-8 px-4 sm:px-8">
-      <div className="w-full max-w-6xl space-y-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-extrabold tracking-tight text-white">Redes y Proyectos</h1>
+    <div className="networks-layout">
+      <div className="networks-container">
+        {/* Header superior */}
+        <div className="networks-header">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-600/30">
+              🌐
             </div>
-            <p className="text-sm text-slate-400 mt-1">
-              Asignación, Kuhn-Munkres, Flujo Máximo, Costo Mínimo, Transporte y CPM/PERT
-            </p>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-zinc-100">Redes y Proyectos</h1>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Transporte, Asignación, Kuhn-Munkres, Flujo Máximo, Costo Mínimo y PERT/CPM
+              </p>
+            </div>
           </div>
-          <nav className="flex items-center gap-1.5 bg-white/5 p-1.5 rounded-xl border border-white/10 shadow-lg">
+          <nav aria-label="Módulos principales" className="calc-nav-pill">
             <button
               onClick={() => window.location.href = "/"}
-              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-all"
+              className="calc-nav-btn"
             >
-              📐 Programación Lineal
+              Programación Lineal
             </button>
             <button
               onClick={() => window.location.href = "/networks"}
-              className="px-4 py-2 rounded-lg text-xs font-bold transition-all bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md"
+              className="calc-nav-btn calc-nav-btn--active"
             >
               Redes, Asignación y Flujos
             </button>
           </nav>
         </div>
 
-        {/* Pestañas grandes y centradas */}
-        <div className="flex flex-wrap items-center justify-center gap-2 p-2 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md shadow-lg">
-          {sections.map((s) => (
-            <button
-              key={s.id}
-              id={`tab-network-${s.id}`}
-              onClick={() => setSection(s.id)}
-              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-                section === s.id
-                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25 scale-[1.02]"
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <span className="text-base">{s.icon}</span>
-              <span>{s.label}</span>
-            </button>
-          ))}
+        {/* Barra de selección de método / algoritmos (separada y centrada) */}
+        <div className="networks-tabs-wrapper">
+          <div className="networks-tabs-bar">
+            {sections.map((s) => (
+              <button
+                key={s.id}
+                id={`tab-network-${s.id}`}
+                onClick={() => setSection(s.id)}
+                className={`networks-tab-btn ${
+                  section === s.id ? "networks-tab-btn--active" : ""
+                }`}
+              >
+                <span className="text-base">{s.icon}</span>
+                <span>{s.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        {section === "transport" && <TransportSection />}
-        {section === "assignment" && <AssignmentSection />}
-        {section === "kuhn-munkres" && <KuhnMunkresSection />}
-        {section === "max-flow" && <MaxFlowSection />}
-        {section === "min-cost-flow" && <MinCostFlowSection />}
-        {section === "cpm" && <CPMSection />}
-        {section === "pert" && <PERTSection />}
-        {section === "queues" && <QueuesSection />}
+        {/* Bloque principal centrado y con respiro vertical amplio */}
+        <div className="networks-content-area">
+          {section === "transport" && <TransportSection />}
+          {section === "assignment" && <AssignmentSection />}
+          {section === "kuhn-munkres" && <KuhnMunkresSection />}
+          {section === "max-flow" && <MaxFlowSection />}
+          {section === "min-cost-flow" && <MinCostFlowSection />}
+          {section === "cpm" && <CPMSection />}
+          {section === "pert" && <PERTSection />}
+          {section === "queues" && <QueuesSection />}
+        </div>
       </div>
     </div>
   );
@@ -247,7 +254,7 @@ function TransportSection() {
           <button
             onClick={handleSolve}
             disabled={loading}
-            className="btn-primary w-full mt-6 py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide"
+            className="btn-primary w-full mt-6 py-4 text-base font-semibold shadow-lg shadow-indigo-600/20 tracking-wide"
             id="transport-solve-btn"
           >
             {loading ? "Resolviendo..." : "⚡ Resolver Transporte"}
@@ -422,7 +429,7 @@ function CPMSection() {
           <button
             onClick={handleSolve}
             disabled={loading}
-            className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide"
+            className="btn-primary w-full py-4 text-base font-semibold shadow-lg shadow-indigo-600/20 tracking-wide"
             id="cpm-solve-btn"
           >
             {loading ? "Calculando..." : "⚡ Calcular CPM"}
@@ -616,7 +623,7 @@ function PERTSection() {
           <button
             onClick={handleSolve}
             disabled={loading}
-            className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide"
+            className="btn-primary w-full py-4 text-base font-semibold shadow-lg shadow-indigo-600/20 tracking-wide"
             id="pert-solve-btn"
           >
             {loading ? "Calculando..." : "⚡ Calcular PERT"}
@@ -808,7 +815,7 @@ function QueuesSection() {
           <button
             onClick={handleSolve}
             disabled={loading}
-            className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide"
+            className="btn-primary w-full py-4 text-base font-semibold shadow-lg shadow-indigo-600/20 tracking-wide"
             id="queue-solve-btn"
           >
             {loading ? "Calculando..." : "⚡ Calcular Modelo de Colas"}
@@ -1045,7 +1052,7 @@ function CodeViewer({ algo }: { algo: string }) {
     <div className="mt-4">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-orange-500/40 text-orange-400 text-sm font-mono hover:bg-orange-500/10 transition-all"
+        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-indigo-500/30 text-indigo-400 text-sm font-mono hover:bg-indigo-500/10 transition-all"
       >
         <span>{open ? "▼" : "▶"}</span>
         {"</>"} Código del Algoritmo
@@ -1112,7 +1119,7 @@ function AssignmentSection() {
               {(["MIN", "MAX"] as const).map((t) => (
                 <button key={t} onClick={() => setType(t)}
                   className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                    type === t ? "bg-orange-500 text-white shadow-md shadow-orange-500/20" : "bg-white/5 text-slate-400 hover:text-white"
+                    type === t ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20" : "bg-zinc-800 text-zinc-400 hover:text-white"
                   }`}>
                   {t}
                 </button>
@@ -1159,7 +1166,7 @@ function AssignmentSection() {
             </table>
           </div>
 
-          <button id="assignment-solve-btn" onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide">
+          <button id="assignment-solve-btn" onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-base font-semibold shadow-lg shadow-indigo-600/20 tracking-wide">
             {loading ? "Resolviendo..." : `⚡ Resolver Asignación (${type})`}
           </button>
           {error && <div className="alert-error text-sm">{error}</div>}
@@ -1233,7 +1240,7 @@ function KuhnMunkresSection() {
               {(["MIN", "MAX"] as const).map((t) => (
                 <button key={t} onClick={() => setType(t)}
                   className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                    type === t ? "bg-orange-500 text-white shadow-md shadow-orange-500/20" : "bg-white/5 text-slate-400 hover:text-white"
+                    type === t ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20" : "bg-zinc-800 text-zinc-400 hover:text-white"
                   }`}>
                   {t}
                 </button>
@@ -1271,7 +1278,7 @@ function KuhnMunkresSection() {
             </table>
           </div>
 
-          <button id="km-solve-btn" onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide">
+          <button id="km-solve-btn" onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-base font-semibold shadow-lg shadow-indigo-600/20 tracking-wide">
             {loading ? "Calculando..." : "⚡ Ejecutar Kuhn-Munkres"}
           </button>
           {error && <div className="alert-error text-sm">{error}</div>}
@@ -1334,7 +1341,7 @@ function KuhnMunkresSection() {
                                 isAssigned
                                   ? "bg-teal-500/25 text-teal-300 font-bold"
                                   : isZero
-                                  ? "text-orange-400 font-semibold"
+                                  ? "text-indigo-400 font-semibold"
                                   : ""
                               }`}>
                                 {Math.abs(val) < 1e-9 ? "0" : val.toFixed(2)}
@@ -1448,7 +1455,7 @@ function MaxFlowSection() {
             </button>
           </div>
 
-          <button id="maxflow-solve-btn" onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide">
+          <button id="maxflow-solve-btn" onClick={handleSolve} disabled={loading} className="btn-primary w-full py-4 text-base font-semibold shadow-lg shadow-indigo-600/20 tracking-wide">
             {loading ? "Calculando..." : "⚡ Calcular Flujo Máximo"}
           </button>
           {error && <div className="alert-error text-sm">{error}</div>}
@@ -1501,7 +1508,7 @@ function MaxFlowSection() {
                 <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10">
                   <span className="text-xs text-slate-500 font-mono">#{i + 1}</span>
                   <span className="text-base font-mono text-white">{p.path?.join(" → ")}</span>
-                  <span className="ml-auto text-orange-400 text-xs font-bold bg-orange-500/10 px-2.5 py-1 rounded-lg border border-orange-500/20">
+                  <span className="ml-auto text-indigo-400 text-xs font-bold bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">
                     Cuello: {p.bottleneck}
                   </span>
                 </div>
@@ -1719,7 +1726,7 @@ function MinCostFlowSection() {
             </div>
           </div>
 
-          <button id="mincostflow-solve-btn" onClick={handleSolve} disabled={loading || !isBalanced} className="btn-primary w-full py-4 text-lg font-bold shadow-xl shadow-orange-500/25 tracking-wide disabled:opacity-50">
+          <button id="mincostflow-solve-btn" onClick={handleSolve} disabled={loading || !isBalanced} className="btn-primary w-full py-4 text-base font-semibold shadow-lg shadow-indigo-600/20 tracking-wide disabled:opacity-50">
             {loading ? "Calculando..." : isBalanced ? "⚡ Calcular Flujo a Costo Mínimo" : "⚠ Red desbalanceada"}
           </button>
           {error && <div className="alert-error text-sm">{error}</div>}
@@ -1749,7 +1756,7 @@ function MinCostFlowSection() {
                       <td className={e.flow > 0 ? "text-teal-300 font-bold text-base" : "text-slate-600"}>{e.flow}</td>
                       <td>{e.capacity}</td>
                       <td className="text-slate-400">${e.cost_per_unit}</td>
-                      <td className={e.arc_cost > 0 ? "text-orange-400 font-bold" : "text-slate-600"}>
+                      <td className={e.arc_cost > 0 ? "text-indigo-400 font-bold" : "text-zinc-500"}>
                         ${e.arc_cost}
                       </td>
                     </tr>

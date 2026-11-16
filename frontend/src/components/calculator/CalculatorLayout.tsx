@@ -14,15 +14,8 @@ import {
 
 type SolveMethod = "simplex" | "revised" | "graphical" | "dual";
 
-const MODE_LABELS: Record<string, string> = {
-  linear:   "📐 Programación Lineal",
-  networks: "Redes y Proyectos",
-  queues:   "⏱ Teoría de Colas",
-  advanced: "🧩 Modelos Avanzados",
-};
-
 export default function CalculatorLayout() {
-  const { mode, setMode, optType, setOptType, getParsedModel, rows, activeRowIdx, pasteToActiveRow } =
+  const { mode, optType, setOptType, getParsedModel, rows, activeRowIdx, pasteToActiveRow } =
     useCalculatorStore();
 
   const [method, setMethod] = useState<SolveMethod>("simplex");
@@ -101,41 +94,47 @@ export default function CalculatorLayout() {
 
   return (
     <div className="calc-root">
-      {/* ── HEADER ── */}
+      {/* ── TOP HEADER (OptiFlow Enterprise Bar) ── */}
       <header className="calc-header">
+        {/* Brand */}
         <div className="calc-header__brand">
-          <span className="calc-header__icon">∑</span>
-          <span className="calc-header__title">Calculadora IO</span>
+          <div className="calc-header__icon-box">
+            <span className="calc-header__icon">∑</span>
+          </div>
+          <div className="calc-header__title-group">
+            <span className="calc-header__title">Calculadora</span>
+            <span className="calc-header__subtitle">Investigación de Operaciones</span>
+          </div>
         </div>
 
-        {/* ── TOP MODULE NAVIGATION TABS ── */}
-        <nav className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
+        {/* Module Pill Selector */}
+        <nav aria-label="Módulos principales" className="calc-nav-pill">
           <button
             onClick={() => window.location.href = "/"}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-sm"
+            className="calc-nav-btn calc-nav-btn--active"
           >
-            📐 Programación Lineal
+            Programación Lineal
           </button>
           <button
             onClick={() => window.location.href = "/networks"}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1.5"
-            title="Ir a Asignación, Kuhn-Munkres, Flujo Máximo, Costo Mínimo, etc."
+            className="calc-nav-btn"
+            title="Ir a Transporte, Asignación, Flujos y Proyectos"
           >
-            <span>Redes, Asignación y Flujos</span>
-            <span className="px-1.5 py-0.5 bg-orange-500/20 text-orange-400 text-[10px] rounded font-mono border border-orange-500/30">NUEVO</span>
+            Redes, Asignación y Flujos
           </button>
         </nav>
 
+        {/* Right Controls */}
         <div className="calc-header__controls">
-          {/* Mobile fallback button */}
+          {/* Mobile navigation button */}
           <button
             onClick={() => window.location.href = "/networks"}
-            className="md:hidden px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-500 text-white"
+            className="md:hidden px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-sm"
           >
             Redes
           </button>
 
-          {/* OPT type toggle */}
+          {/* MAX / MIN Selector */}
           {mode === "linear" && (
             <div className="calc-toggle">
               <button
@@ -149,7 +148,7 @@ export default function CalculatorLayout() {
             </div>
           )}
 
-          {/* Method selector */}
+          {/* Solve Method Selector */}
           {mode === "linear" && (
             <div className="calc-toggle">
               {(["simplex", "revised", "graphical", "dual"] as SolveMethod[]).map((m) => (
@@ -172,13 +171,13 @@ export default function CalculatorLayout() {
         </div>
       </header>
 
-      {/* ── MAIN BODY ── */}
+      {/* ── MAIN WORKSPACE ── */}
       <main className="calc-body">
-        {/* Left panel — Display + Keypad (Centered) */}
+        {/* Left Panel: Mathematical Model Input (Display + Keypad) */}
         <section className="calc-center">
-          {/* Row tabs */}
-          <div className="calc-row-tabs" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
+          {/* Row Tabs */}
+          <div className="calc-row-tabs">
+            <div className="calc-row-tab-list">
               {rows.map((row, idx) => (
                 <button
                   key={row.id}
@@ -189,8 +188,8 @@ export default function CalculatorLayout() {
                 </button>
               ))}
             </div>
-            <span style={{ fontSize: "0.75rem", color: "#888", paddingRight: "10px" }}>
-              (Ctrl+V para pegar)
+            <span className="text-[11px] text-zinc-500 font-mono tracking-tight hidden sm:inline">
+              Ctrl+V pegar
             </span>
           </div>
 
@@ -198,10 +197,13 @@ export default function CalculatorLayout() {
           <CalcKeypad onSolve={handleSolve} />
         </section>
 
-        {/* Right panel — Results */}
+        {/* Right Panel: Results & Simplex Tableaux */}
         <section className={`calc-right ${resultsOpen ? "calc-right--open" : ""}`}>
           <div className="calc-right__header">
-            <h2 className="calc-right__title">Resultados</h2>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <h2 className="calc-right__title">Resultados de Optimización</h2>
+            </div>
             <button
               className="calc-right__close"
               onClick={() => setResultsOpen(false)}
@@ -214,7 +216,7 @@ export default function CalculatorLayout() {
         </section>
       </main>
 
-      {/* Results toggle button (mobile) */}
+      {/* Mobile Floating Results Button */}
       {!resultsOpen && result && (
         <button className="calc-results-fab" onClick={() => setResultsOpen(true)}>
           📊 Ver Resultados

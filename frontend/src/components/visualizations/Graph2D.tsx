@@ -57,8 +57,8 @@ export default function Graph2D({ result, objCoeffs }: Graph2DProps) {
     {
       label: "Región Factible",
       data: closedPolygon.map((v) => ({ x: v.x, y: v.y })),
-      backgroundColor: "rgba(79, 142, 247, 0.15)",
-      borderColor: "rgba(79, 142, 247, 0.6)",
+      backgroundColor: "rgba(99, 102, 241, 0.2)",
+      borderColor: "rgba(99, 102, 241, 0.85)",
       borderWidth: 2,
       showLine: true,
       pointRadius: 0,
@@ -84,10 +84,10 @@ export default function Graph2D({ result, objCoeffs }: Graph2DProps) {
       label: "Vértices",
       data: vertices.map((v) => ({ x: v.x, y: v.y })),
       backgroundColor: vertices.map((v) =>
-        v.is_optimal ? "#f59e0b" : "rgba(79, 142, 247, 0.8)"
+        v.is_optimal ? "#10B981" : "rgba(99, 102, 241, 0.9)"
       ),
       borderColor: vertices.map((v) =>
-        v.is_optimal ? "#f59e0b" : "#4f8ef7"
+        v.is_optimal ? "#052E16" : "#4F46E5"
       ),
       borderWidth: 2,
       pointRadius: vertices.map((v) => (v.is_optimal ? 10 : 6)),
@@ -117,9 +117,9 @@ export default function Graph2D({ result, objCoeffs }: Graph2DProps) {
                   font: { size: 14 },
                 },
                 grid: {
-                  color: "rgba(255,255,255,0.06)",
+                  color: "#27272A",
                 },
-                ticks: { color: "#94a3b8" },
+                ticks: { color: "#A1A1AA" },
               },
               y: {
                 type: "linear",
@@ -128,25 +128,25 @@ export default function Graph2D({ result, objCoeffs }: Graph2DProps) {
                 title: {
                   display: true,
                   text: "x₂",
-                  color: "#94a3b8",
+                  color: "#A1A1AA",
                   font: { size: 14 },
                 },
                 grid: {
-                  color: "rgba(255,255,255,0.06)",
+                  color: "#27272A",
                 },
-                ticks: { color: "#94a3b8" },
+                ticks: { color: "#A1A1AA" },
               },
             },
             plugins: {
               legend: {
-                labels: { color: "#94a3b8", boxWidth: 16, font: { size: 12 } },
+                labels: { color: "#FAFAFA", boxWidth: 16, font: { size: 12 } },
               },
               tooltip: {
-                backgroundColor: "#131929",
-                borderColor: "rgba(79,142,247,0.4)",
+                backgroundColor: "#18181B",
+                borderColor: "#27272A",
                 borderWidth: 1,
-                titleColor: "#e8eaf6",
-                bodyColor: "#94a3b8",
+                titleColor: "#FAFAFA",
+                bodyColor: "#A1A1AA",
                 callbacks: {
                   label: (ctx) => {
                     const pt = ctx.raw as { x: number; y: number };
@@ -191,14 +191,14 @@ export default function Graph2D({ result, objCoeffs }: Graph2DProps) {
             {vertices.map((v, i) => (
               <tr
                 key={i}
-                className={`border-b border-white/4 ${
-                  v.is_optimal ? "bg-amber-500/10" : ""
+                className={`border-b border-zinc-800 ${
+                  v.is_optimal ? "bg-emerald-500/10 text-emerald-400 font-semibold" : ""
                 }`}
               >
-                <td className="py-2 text-slate-300">V{i + 1}</td>
-                <td className="py-2 text-center">{formatNumber(v.x)}</td>
-                <td className="py-2 text-center">{formatNumber(v.y)}</td>
-                <td className="py-2 text-center text-blue-300 font-semibold">
+                <td className="py-2 text-zinc-300">V{i + 1}</td>
+                <td className="py-2 text-center font-mono">{formatNumber(v.x)}</td>
+                <td className="py-2 text-center font-mono">{formatNumber(v.y)}</td>
+                <td className="py-2 text-center font-mono text-indigo-400 font-semibold">
                   {formatNumber(v.z_value)}
                 </td>
                 <td className="py-2 text-center">

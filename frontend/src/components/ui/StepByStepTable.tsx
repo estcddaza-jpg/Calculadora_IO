@@ -37,15 +37,15 @@ export default function StepByStepTable({
         <h3 className="text-lg font-semibold text-white">
           Iteraciones del Método Simplex
         </h3>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 p-1 bg-zinc-900 rounded-lg border border-zinc-800">
           {tableaux.map((t, i) => (
             <button
               key={i}
               onClick={() => setActiveTab(i)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
                 activeTab === i
-                  ? "bg-blue-500/20 text-blue-400 border border-blue-500/40"
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
               }`}
               aria-label={`Iteración ${i}`}
             >

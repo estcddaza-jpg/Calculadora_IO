@@ -29,14 +29,16 @@ export default function AdvancedPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
+    <div className="min-h-screen bg-[#09090B] text-zinc-100">
       <div className="max-w-7xl mx-auto px-6 py-10">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl">🧬</span>
-            <h1 className="text-3xl font-bold text-white">Modelos Avanzados</h1>
+            <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-600/30">
+              🧬
+            </div>
+            <h1 className="text-3xl font-bold text-zinc-100">Modelos Avanzados</h1>
           </div>
-          <p className="text-slate-400">
+          <p className="text-zinc-400 text-sm">
             Programación Dinámica, Branch & Bound, Grafos y más.
           </p>
         </div>

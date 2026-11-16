@@ -5,7 +5,6 @@ import "katex/dist/katex.min.css";
 import type { SimplexResponse, GraphicalResponse, DualResponse, RevisedSimplexResponse } from "@/services/api";
 import Graph2D from "../visualizations/Graph2D";
 import Graph3D from "../visualizations/Graph3D";
-
 import { formatNumber } from "@/utils/format";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -28,36 +27,68 @@ function KTex({ src }: { src: string }) {
 //  Simplex Results
 // ─────────────────────────────────────────────────────────────────────────────
 function SimplexResults({ data }: { data: SimplexResponse }) {
+  const isOptimal = data.status === "optimal";
+  const numIterations = data.tableaux ? data.tableaux.length : 0;
+
   return (
     <div className="results-block">
+      {/* Optimal Solution Highlight Card */}
       <div className="results-header">
-        <span className={`results-badge ${data.status === "optimal" ? "badge-optimal" : "badge-error"}`}>
-          {data.status.toUpperCase()}
-        </span>
-        <span className="results-zval">
-          Z* = <strong>{data.status === "unbounded" ? "∞" : data.status === "infeasible" ? "-" : formatNumber(data.optimal_value)}</strong>
-        </span>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className={`results-badge ${isOptimal ? "badge-optimal" : "badge-error"}`}>
+              {isOptimal ? "✓ OPTIMAL" : data.status.toUpperCase()}
+            </span>
+            {numIterations > 0 && (
+              <span className="text-xs text-zinc-400 font-mono">
+                {numIterations} {numIterations === 1 ? "iteración" : "iteraciones"}
+              </span>
+            )}
+          </div>
+          <h3 className="text-sm font-semibold text-zinc-200 mt-1">Solución Óptima</h3>
+        </div>
+
+        <div className="flex flex-col sm:items-end justify-center px-4 py-2 rounded-lg bg-[#09090B] border border-zinc-800">
+          <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Valor Objetivo</span>
+          <span className="results-zval">
+            Z* = <strong>{data.status === "unbounded" ? "∞" : data.status === "infeasible" ? "-" : formatNumber(data.optimal_value)}</strong>
+          </span>
+        </div>
       </div>
 
-      <div className="results-vars">
-        {Object.entries(data.variables || {}).map(([k, v]) => (
-          <div key={k} className="results-var-chip">
-            <KTex src={k.replace(/x(\d+)/, "x_{$1}").replace(/y(\d+)/, "y_{$1}")} />
-            <span className="results-var-eq">=</span>
-            <strong>{formatNumber(v)}</strong>
-          </div>
-        ))}
+      {/* Variables */}
+      <div>
+        <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block mb-2">
+          Variables del Modelo
+        </span>
+        <div className="results-vars">
+          {Object.entries(data.variables || {}).map(([k, v]) => (
+            <div key={k} className="results-var-chip">
+              <KTex src={k.replace(/x(\d+)/, "x_{$1}").replace(/y(\d+)/, "y_{$1}")} />
+              <span className="results-var-eq">=</span>
+              <strong>{formatNumber(v)}</strong>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Tableau iterations */}
       {data.tableaux && data.tableaux.length > 0 && (
-        <div className="tableaux-wrapper">
-          <h3 className="tableaux-title">Iteraciones del Simplex</h3>
+        <div className="tableaux-wrapper mt-2">
+          <div className="flex items-center justify-between">
+            <h3 className="tableaux-title">Iteraciones del Simplex</h3>
+            <span className="text-xs text-zinc-400 font-mono">
+              Todas las Cj - Zj ≤ 0
+            </span>
+          </div>
+
           {data.tableaux.map((t, ti) => (
             <div key={ti} className="tableau-card">
               <div className="tableau-caption">
-                Iteración {t.iteration} &nbsp;·&nbsp; Z = {formatNumber(t.z_value)}
-                {t.is_optimal && <span className="tableau-optimal-tag">✓ Óptimo</span>}
+                <span className="font-semibold text-zinc-300">Iteración {t.iteration}</span>
+                <span className="text-zinc-500 font-mono">·</span>
+                <span className="font-mono text-zinc-400">Z = {formatNumber(t.z_value)}</span>
+                {t.is_optimal && <span className="tableau-optimal-tag ml-auto">✓ Óptimo</span>}
               </div>
               <div className="tableau-scroll">
                 <table className="simplex-table">
@@ -75,7 +106,7 @@ function SimplexResults({ data }: { data: SimplexResponse }) {
                       return (
                         <tr key={ri}>
                           <td className="basic-var-col">{bv}</td>
-                          <td className="font-semibold text-teal-400">{formatNumber(t.cb?.[ri] ?? t.cj?.[ri])}</td>
+                          <td className="font-semibold text-indigo-400 font-mono">{formatNumber(t.cb?.[ri] ?? t.cj?.[ri])}</td>
                           {row.map((cell, ci) => (
                             <td
                               key={ci}
@@ -96,7 +127,9 @@ function SimplexResults({ data }: { data: SimplexResponse }) {
                     <tr className="cj-zj-row">
                       <td colSpan={2} className="cj-zj-label">Cj−Zj</td>
                       {t.cj_zj?.map((v, ci) => (
-                        <td key={ci} className={v > 0 ? "text-orange-400 font-bold" : ""}>{formatNumber(v)}</td>
+                        <td key={ci} className={v > 0 ? "text-amber-400 font-bold" : "text-zinc-400"}>
+                          {formatNumber(v)}
+                        </td>
                       ))}
                     </tr>
                   </tbody>
@@ -116,11 +149,19 @@ function SimplexResults({ data }: { data: SimplexResponse }) {
 function DualResults({ data }: { data: DualResponse }) {
   return (
     <div className="results-block">
-      <h3 className="tableaux-title">Modelo Dual</h3>
-      <div className="dual-info">
-        <span>Primal: <strong>{data.primal_type}</strong></span>
-        <span>Dual: <strong>{data.dual_type}</strong></span>
+      <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+        <h3 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider">Modelo Dual</h3>
+        <div className="flex items-center gap-2">
+          <span className="px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-mono">
+            PRIMAL: {data.primal_type}
+          </span>
+          <span className="text-zinc-500">→</span>
+          <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-mono">
+            DUAL: {data.dual_type}
+          </span>
+        </div>
       </div>
+
       <div className="dual-latex-box">
         <KTex src={data.latex_representation} />
       </div>
@@ -135,19 +176,18 @@ function GraphicalResults({ data }: { data: GraphicalResponse }) {
   const isInherently3D = data.vertices.length > 0 && data.vertices[0].z !== undefined;
   const [view3D, setView3D] = useState(isInherently3D);
   
-  // Si es un problema 2D pero queremos verlo en 3D, le inventamos z=0
   const renderData = (view3D && !isInherently3D) 
     ? { ...data, vertices: data.vertices.map(v => ({ ...v, z: 0 })) }
     : data;
 
   return (
     <div className="results-block">
-      <div className="results-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-        <div>
+      <div className="results-header">
+        <div className="flex items-center gap-3">
           <span className={`results-badge ${data.status === "optimal" ? "badge-optimal" : "badge-error"}`}>
             {data.status.toUpperCase()}
           </span>
-          <span className="results-zval" style={{ marginLeft: '10px' }}>
+          <span className="results-zval">
             Z* = <strong>{data.status === "unbounded" ? "∞" : data.status === "infeasible" ? "-" : formatNumber(data.optimal_value)}</strong>
           </span>
         </div>
@@ -164,6 +204,29 @@ function GraphicalResults({ data }: { data: GraphicalResponse }) {
         </div>
       </div>
       
+      {/* Vértices de la Región Factible */}
+      {data.vertices && data.vertices.length > 0 && (
+        <div className="mt-2">
+          <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+            Vértices de la Región Factible
+          </h4>
+          <div className="vertices-grid">
+            {data.vertices.map((v, vi) => {
+              const isOpt = data.optimal_point &&
+                Math.abs(data.optimal_point.x - v.x) < 0.001 &&
+                Math.abs(data.optimal_point.y - v.y) < 0.001;
+              return (
+                <div key={vi} className={`vertex-chip ${isOpt ? "vertex-chip--optimal" : ""}`}>
+                  <span>({formatNumber(v.x)}, {formatNumber(v.y)})</span>
+                  <span className="vertex-z">Z={formatNumber(v.z_value)}</span>
+                  {isOpt && <span className="vertex-star">★ Óptimo</span>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="mt-4 w-full">
         {view3D ? (
           <Graph3D result={renderData} />
@@ -182,12 +245,14 @@ function RevisedSimplexResults({ data }: { data: RevisedSimplexResponse }) {
   return (
     <div className="results-block">
       <div className="results-header">
-        <span className={`results-badge ${data.status === "optimal" ? "badge-optimal" : "badge-error"}`}>
-          {data.status.toUpperCase()}
-        </span>
-        <span className="results-zval">
-          Z* = <strong>{data.status === "unbounded" ? "∞" : data.status === "infeasible" ? "-" : formatNumber(data.optimal_value)}</strong>
-        </span>
+        <div className="flex items-center gap-3">
+          <span className={`results-badge ${data.status === "optimal" ? "badge-optimal" : "badge-error"}`}>
+            {data.status.toUpperCase()}
+          </span>
+          <span className="results-zval">
+            Z* = <strong>{data.status === "unbounded" ? "∞" : data.status === "infeasible" ? "-" : formatNumber(data.optimal_value)}</strong>
+          </span>
+        </div>
       </div>
 
       <div className="results-vars">
@@ -202,13 +267,15 @@ function RevisedSimplexResults({ data }: { data: RevisedSimplexResponse }) {
 
       {/* Tableau iterations */}
       {data.tableaux && data.tableaux.length > 0 && (
-        <div className="tableaux-wrapper">
+        <div className="tableaux-wrapper mt-2">
           <h3 className="tableaux-title">Iteraciones del Simplex Revisado</h3>
           {data.tableaux.map((t, ti) => (
             <div key={ti} className="tableau-card">
               <div className="tableau-caption">
-                Iteración {t.iteration} &nbsp;·&nbsp; Z = {formatNumber(t.z_value)}
-                {t.is_optimal && <span className="tableau-optimal-tag">✓ Óptimo</span>}
+                <span className="font-semibold text-zinc-300">Iteración {t.iteration}</span>
+                <span className="text-zinc-500 font-mono">·</span>
+                <span className="font-mono text-zinc-400">Z = {formatNumber(t.z_value)}</span>
+                {t.is_optimal && <span className="tableau-optimal-tag ml-auto">✓ Óptimo</span>}
               </div>
               <div className="tableau-scroll">
                 <table className="simplex-table text-xs">
@@ -223,7 +290,7 @@ function RevisedSimplexResults({ data }: { data: RevisedSimplexResponse }) {
                     {t.basic_variables.map((bv, ri) => (
                       <tr key={ri}>
                         <td className="basic-var-col">{bv}</td>
-                        <td className="font-semibold text-teal-300">{formatNumber(t.rhs[ri])}</td>
+                        <td className="font-semibold text-emerald-400 font-mono">{formatNumber(t.rhs[ri])}</td>
                         {t.b_inv[ri].map((cell, ci) => (
                           <td key={ci}>{formatNumber(cell)}</td>
                         ))}
@@ -234,14 +301,14 @@ function RevisedSimplexResults({ data }: { data: RevisedSimplexResponse }) {
                       <td className="cj-zj-label">π (Multiplicadores)</td>
                       <td></td>
                       {t.pi?.map((v, ci) => (
-                        <td key={ci} className="text-purple-400">{formatNumber(v)}</td>
+                        <td key={ci} className="text-indigo-400 font-mono font-semibold">{formatNumber(v)}</td>
                       ))}
                     </tr>
                   </tbody>
                 </table>
               </div>
               
-              <div className="mt-4 tableau-scroll">
+              <div className="mt-3 tableau-scroll border-t border-zinc-800">
                 <table className="simplex-table text-xs w-full">
                    <thead>
                       <tr>
@@ -251,9 +318,9 @@ function RevisedSimplexResults({ data }: { data: RevisedSimplexResponse }) {
                    </thead>
                    <tbody>
                       <tr>
-                        <td className="font-semibold text-orange-300">Costos Reducidos</td>
+                        <td className="font-semibold text-amber-400">Costos Reducidos</td>
                         {t.reduced_costs.map((rc, ci) => (
-                           <td key={ci} className={rc > 0 ? "text-amber-400 font-bold" : ""}>
+                           <td key={ci} className={rc > 0 ? "text-amber-400 font-bold" : "text-zinc-400"}>
                              {formatNumber(rc)}
                            </td>
                         ))}
@@ -290,7 +357,7 @@ export default function ResultsPanel({ result, loading }: ResultsPanelProps) {
     return (
       <div className="results-loading">
         <div className="spinner" />
-        <span>Calculando…</span>
+        <span>Calculando solución óptima…</span>
       </div>
     );
   }

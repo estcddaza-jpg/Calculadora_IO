@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -14,11 +14,17 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#09090B",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
-  title: "Calculadora IO — Investigación de Operaciones",
+  title: "OptiFlow — Calculadora de Investigación de Operaciones",
   description:
-    "Calculadora universitaria de Investigación de Operaciones: Simplex, Redes, PERT/CPM, Colas, Transporte y más. Visualización paso a paso con tablas académicas.",
-  keywords: ["investigación de operaciones", "simplex", "programación lineal", "PERT", "CPM", "redes"],
+    "Workspace de alta precisión para Investigación de Operaciones, Programación Lineal (Simplex), Flujos de Redes y Planificación de Proyectos (PERT/CPM).",
+  keywords: ["investigación de operaciones", "simplex", "programación lineal", "PERT", "CPM", "redes", "transporte"],
 };
 
 export default function RootLayout({
@@ -27,8 +33,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="antialiased">{children}</body>
+    <html lang="es" className={`dark ${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="antialiased bg-[#09090B] text-[#FAFAFA] font-sans selection:bg-indigo-600 selection:text-white">
+        {children}
+      </body>
     </html>
   );
 }

@@ -180,24 +180,26 @@ export default function LinearPage() {
   );
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
+    <div className="min-h-screen bg-[#09090B] text-zinc-100">
       <div className="max-w-7xl mx-auto px-6 py-10">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl">📐</span>
-            <h1 className="text-3xl font-bold text-white">
+            <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-600/30">
+              📐
+            </div>
+            <h1 className="text-3xl font-bold text-zinc-100">
               Programación Lineal
             </h1>
           </div>
-          <p className="text-slate-400">
+          <p className="text-zinc-400 text-sm">
             Resuelve PL con visualización académica paso a paso: tableau Simplex,
             región factible y dualidad.
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 p-1 bg-white/4 rounded-xl w-fit mb-8 border border-white/8">
+        <div className="flex gap-1.5 p-1.5 bg-zinc-900 rounded-xl w-fit mb-8 border border-zinc-800 shadow-inner">
           {(
             [
               { id: "simplex", label: "Simplex", icon: "∑" },
@@ -208,10 +210,10 @@ export default function LinearPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-150 ${
                 activeTab === tab.id
-                  ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                  : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/60"
               }`}
             >
               {tab.icon} {tab.label}
